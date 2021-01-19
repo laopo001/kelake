@@ -1,7 +1,7 @@
 use serde_json::Value;
 use std::convert::From;
 
-#[derive(Clone)]
+#[derive(Debug,Clone)]
 pub enum VNode {
     VText(String),
     Int(f64),
@@ -34,7 +34,11 @@ impl From<Vec<VNode>> for VNode {
 }
 
 
-pub fn create_base_element(base_name: &str, props: Value, children: VNode) {}
+pub fn create_base_element(base_name: &str, props: Value, children: VNode) {
+    dbg!(base_name);
+    dbg!(props);
+    dbg!(children);
+}
 
 #[test]
 fn it_works() {

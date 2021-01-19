@@ -1,10 +1,11 @@
 [package]
-name = "kelake"
-version = "0.1.0"
 authors = ["laopo001 <353272497@qq.com>"]
 edition = "2018"
+name = "kelake"
+version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+kelake-macro = {path = "../kelake-macro"}
 serde_json = "1.0.61"
