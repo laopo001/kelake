@@ -6,31 +6,31 @@ pub trait Component {
     // type Properties: Properties;
 }
 
-macro_rules! html {
-    (<$tag_start:ident>$children:tt</$tag_end:ident>) => {
-        vnode::create_base_element(
-            stringify!($tag_start),
-            json! {{}},
-            vnode::VNode::from(html_children!($children)),
-        )
-    };
-    ($(<$tag_start:ident>$children:tt</$tag_end:ident>)* ) => {
-        {
-            let mut arr = vec![];
-            $(
-                arr.push(vnode::create_base_element(
-                    stringify!($tag_start),
-                    json! {{}},
-                    vnode::VNode::from(html!($children)),
-                ));
-            )*
-            arr
-        }
-    };
-    ($children:ident) => {
-        stringify!($children)
-    };
-}
+// macro_rules! html {
+//     (<$tag_start:ident>$children:tt</$tag_end:ident>) => {
+//         vnode::create_base_element(
+//             stringify!($tag_start),
+//             json! {{}},
+//             html!($children),
+//         )
+//     };
+//     // ($(<$tag_start:ident>$children:tt</$tag_end:ident>)* ) => {
+//     //     {
+//     //         let mut arr = vec![];
+//     //         $(
+//     //             arr.push(vnode::create_base_element(
+//     //                 stringify!($tag_start),
+//     //                 json! {{}},
+//     //                 vnode::VNode::from(html!($children)),
+//     //             ));
+//     //         )*
+//     //         arr
+//     //     }
+//     // };
+//     ($children:ident) => {
+//         stringify!($children)
+//     };
+// }
 // macro_rules! html_children {
 //     (<$tag_start:ident>$children:ident</$tag_end:ident>) => {
 //         // vnode::create_base_element(
@@ -51,7 +51,7 @@ macro_rules! html {
 
 #[test]
 fn test() {
-    dbg!(html!(<div>abc</div><p>asdf</p>));
+    react!(<div><div>123</div></div>);
 
     assert_eq!(2 + 2, 4);
 }
