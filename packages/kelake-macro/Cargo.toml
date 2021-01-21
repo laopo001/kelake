@@ -15,3 +15,4 @@ proc-macro2 = "1.0"
 quote = "1.0"
 syn = { version = "1.0", features = ["full", "extra-traits"] }
 regex = "1"
+boolinator = "2.4.0"

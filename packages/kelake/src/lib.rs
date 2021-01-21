@@ -51,7 +51,7 @@ pub trait Component {
 
 #[test]
 fn test() {
-    react!(<div><div>123</div></div>);
+    react!(<div><div>abc</div></div>);
 
     assert_eq!(2 + 2, 4);
 }
