@@ -100,6 +100,21 @@ impl Parse for HtmlElement {
     }
 }
 
+
+impl ToTokens for HtmlElement {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let name = self.name.to_string();   
+        // let mut t = quote! {};
+        // let children = self.children.to_tokens(&mut t);
+        let children = "abc".to_string();
+        // dbg!(&name,&children);
+        tokens.extend(quote! { 
+            VNode::new(#name, vec![VNodeChild::VText(#children)]) 
+            // "234"
+        });
+    }
+}
+
 struct HtmlElementOpen {
     tag: TagTokens,
     name: String,
@@ -196,5 +211,22 @@ impl HtmlElementChildren {
     pub fn parse_child(&mut self, input: ParseStream) -> Result<()> {
         self.0.push(input.parse()?);
         Ok(())
+    }
+}
+
+
+impl ToTokens for HtmlElementChildren {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+    
+        let children = self.0.iter().map(|x|{
+            let mut t = quote! {};
+            x.to_tokens(&mut t);
+            t
+        });
+        tokens.extend(quote! { 
+            #(
+                #children
+            ),* 
+        });
     }
 }

@@ -33,9 +33,15 @@ impl Parse for HtmlVNode {
 
 impl ToTokens for HtmlVNode {
     fn to_tokens(&self, tokens: &mut TokenStream) {
+        // tokens.extend(quote! {
+        //     "123"
+        // });
+        // return;
         match self {
-            // Self::Element(element) => element.to_tokens(tokens),
-            Self::HtmlString(s) => s.to_tokens(tokens),
+            Self::Element(element) => element.to_tokens(tokens),
+            Self::HtmlString(s) => {
+                s.as_ref().to_tokens(tokens);
+            }
             _ => panic!("error"),
         }
     }
@@ -57,6 +63,7 @@ impl Parse for HtmlString {
 
 impl ToTokens for HtmlString {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        tokens.extend(quote! {stringify!( self.0 )});
+        let s = self.0.to_string();   
+        tokens.extend(quote! { #s });
     }
 }

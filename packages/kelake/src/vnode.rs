@@ -1,47 +1,51 @@
-use serde_json::Value;
+// use serde_json::Value;
 use std::convert::From;
 
 #[derive(Debug,Clone)]
-pub enum VNode {
+pub struct VNode {
+    name:String,
+    children:Vec<VNodeChild>,
+}
+impl VNode {
+    pub fn new(name:String, children:Vec<VNodeChild>) -> VNode {
+        VNode{ name, children }
+    }
+}
+
+#[derive(Debug,Clone)]
+pub enum VNodeChild {
     VText(String),
-    Int(f64),
-    Bool(bool),
-    List(Vec<VNode>),
+    VNode(VNode)
 }
-impl From<f64> for VNode {
-    fn from(value: f64) -> Self {
-        VNode::Int(value)
-    }
-}
+// impl From<f64> for VNodeChild {
+//     fn from(value: f64) -> Self {
+//         VNodeChild::Int(value)
+//     }
+// }
 
-impl From<&str> for VNode {
-    fn from(value: &str) -> Self {
-        VNode::VText(value.to_string())
-    }
-}
+// impl From<&str> for VNodeChild {
+//     fn from(value: &str) -> Self {
+//         VNodeChild::VText(value.to_string())
+//     }
+// }
 
 
-impl From<bool> for VNode {
-    fn from(value: bool) -> Self {
-        VNode::Bool(value)
-    }
-}
+// impl From<bool> for VNodeChild {
+//     fn from(value: bool) -> Self {
+//         VNodeChild::Bool(value)
+//     }
+// }
 
-impl From<Vec<VNode>> for VNode {
-    fn from(value: Vec<VNode>) -> Self {
-        VNode::List(value)
-    }
-}
+// impl From<Vec<VNodeChild>> for VNodeChild {
+//     fn from(value: Vec<VNodeChild>) -> Self {
+//         VNodeChild::List(value)
+//     }
+// }
 
 
-pub fn create_base_element(base_name: &str, props: Value, children: VNode) {
-    dbg!(base_name);
-    dbg!(props);
-    dbg!(children);
-}
 
 #[test]
 fn it_works() {
-    VNode::from("123");
+    // VNodeChild::from("123");
     assert_eq!(2 + 2, 4);
 }

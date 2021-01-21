@@ -2,6 +2,7 @@
 pub mod vnode;
 use kelake_macro::react;
 use serde_json::{json, Value};
+use vnode::{ VNode, VNodeChild};
 pub trait Component {
     // type Properties: Properties;
 }
@@ -49,9 +50,11 @@ pub trait Component {
 //     (<$tag_start:ident>$children:ident</$tag_end:ident>) => {};
 // }
 
+fn test2() {
+    dbg!(react!(<div>abc</div>));
+}
+
 #[test]
 fn test() {
-    dbg!(react!(abc));
-
-    assert_eq!(2 + 2, 4);
+    test2()
 }
