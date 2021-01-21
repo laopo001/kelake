@@ -8,14 +8,14 @@
 //         assert_eq!(2 + 2, 4);
 //     }
 // }
+mod html_element;
 mod react;
 mod tag;
-mod html_element;
 
 use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
-use react::{HtmlRootVNode,HtmlVNode};
-use syn::{parse_macro_input, buffer::Cursor};
+use react::HtmlVNode;
+use syn::{buffer::Cursor, parse_macro_input};
 
 #[proc_macro]
 pub fn react(input: TokenStream) -> TokenStream {
@@ -28,7 +28,6 @@ pub fn react(input: TokenStream) -> TokenStream {
 trait PeekValue<T> {
     fn peek(cursor: Cursor) -> Option<T>;
 }
-
 
 fn join_errors(mut it: impl Iterator<Item = syn::Error>) -> syn::Result<()> {
     it.next().map_or(Ok(()), |mut err| {
