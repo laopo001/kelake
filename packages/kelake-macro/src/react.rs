@@ -64,6 +64,6 @@ impl Parse for HtmlString {
 impl ToTokens for HtmlString {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let s = self.0.to_string();   
-        tokens.extend(quote! { #s });
+        tokens.extend(quote! { VNodeChild::VText(#s.to_string()) });
     }
 }

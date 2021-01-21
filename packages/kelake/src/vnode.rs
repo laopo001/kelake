@@ -7,8 +7,9 @@ pub struct VNode {
     children:Vec<VNodeChild>,
 }
 impl VNode {
-    pub fn new(name:String, children:Vec<VNodeChild>) -> VNode {
+    pub fn new(name:String, children:Vec<VNodeChild>) -> Self {
         VNode{ name, children }
+        // "".to_string()
     }
 }
 

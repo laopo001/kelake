@@ -81,7 +81,6 @@ impl Parse for HtmlElement {
                     break;
                 }
             } else {
-                
             }
             a += 1;
             if (a == 10000) {
@@ -100,18 +99,18 @@ impl Parse for HtmlElement {
     }
 }
 
-
 impl ToTokens for HtmlElement {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let name = self.name.to_string();   
-        // let mut t = quote! {};
-        // let children = self.children.to_tokens(&mut t);
-        let children = "abc".to_string();
+        let name = self.name.to_string();
+        let mut t = quote! {};
+        self.children.to_tokens(&mut t);
+    
+        // let children = "abc".to_string();
         // dbg!(&name,&children);
-        tokens.extend(quote! { 
-            VNode::new(#name, vec![VNodeChild::VText(#children)]) 
-            // "234"
+        tokens.extend(quote! {
+            VNode::new(#name.to_string(), #t)
         });
+        dbg!(&tokens.to_string());
     }
 }
 
@@ -214,19 +213,21 @@ impl HtmlElementChildren {
     }
 }
 
-
 impl ToTokens for HtmlElementChildren {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-    
-        let children = self.0.iter().map(|x|{
+        let children = self.0.iter().map(|x| {
             let mut t = quote! {};
             x.to_tokens(&mut t);
+
             t
         });
-        tokens.extend(quote! { 
-            #(
-                #children
-            ),* 
+
+        tokens.extend(quote! {
+            vec![
+                #(
+                    #children
+                ),*
+            ]
         });
     }
 }
