@@ -1,6 +1,6 @@
-use crate::html_element::{HtmlElement, HtmlElementChildren};
+use crate::html_element::{HtmlElement, HtmlElementChildren, HtmlElementClose,HtmlElementOpen};
 use crate::PeekValue;
-use proc_macro2::{Ident, Span, TokenStream, TokenTree};
+use proc_macro2::{Ident, Literal, Punct, Span, TokenStream, TokenTree};
 use quote::{quote, quote_spanned, ToTokens};
 use regex::Regex;
 use syn::{
@@ -50,20 +50,37 @@ impl ToTokens for HtmlVNode {
 pub struct HtmlString(String);
 impl PeekValue<()> for HtmlString {
     fn peek(cursor: Cursor) -> Option<()> {
-        cursor.ident().map(|_| ())
+        // cursor.ident().or(|| cursor.literal()).map(|_| ())
+        if HtmlElementClose::peek(cursor).is_some() {
+            None
+        } else {
+            Some(())
+        }
     }
 }
 
 impl Parse for HtmlString {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let s = input.parse::<Ident>()?.to_string();
+        let mut s = "".to_string();
+        loop {
+            if HtmlElementClose::peek(input.cursor()).is_some() || HtmlElementOpen::peek(input.cursor()).is_some() {
+                return Ok(HtmlString(s));
+            }
+            if let Ok(ident) = input.parse::<Ident>() {
+                s += &ident.to_string();
+            } else if let Ok(ident) = input.parse::<Literal>() {
+                s += &ident.to_string();
+            } else if let Ok(ident) = input.parse::<Punct>() {
+                s += &ident.to_string();
+            }
+        }
         Ok(HtmlString(s))
     }
 }
 
 impl ToTokens for HtmlString {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let s = self.0.to_string();   
-        tokens.extend(quote! { VNodeChild::VText(#s.to_string()) });
+        let s = self.0.to_string();
+        tokens.extend(quote! { VNodeChild::Text(#s.to_string()) });
     }
 }

@@ -15,8 +15,8 @@ impl VNode {
 
 #[derive(Debug,Clone)]
 pub enum VNodeChild {
-    VText(String),
-    VNode(VNode)
+    Text(String),
+    Node(VNode)
 }
 // impl From<f64> for VNodeChild {
 //     fn from(value: f64) -> Self {

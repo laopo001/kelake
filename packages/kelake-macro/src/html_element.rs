@@ -35,7 +35,6 @@ impl Parse for HtmlElement {
                 Err(err) => Err(err),
             };
         }
-        dbg!(13);
         let open = input.parse::<HtmlElementOpen>()?;
         // Return early if it's a self-closing tag
 
@@ -63,10 +62,11 @@ impl Parse for HtmlElement {
 
         // let open_key = open.name.get_key();
         let mut children = HtmlElementChildren::new();
-        let mut count = 1;
+        // let mut count = 1;
         let mut a = 1;
-        dbg!(input.to_string());
+       
         loop {
+            dbg!(input.to_string());
             if input.is_empty() {
                 return Err(syn::Error::new_spanned(
                     open.to_spanned(),
@@ -76,11 +76,10 @@ impl Parse for HtmlElement {
 
             if HtmlElementClose::peek(input.cursor()).is_some() {
                 dbg!("HtmlElementClose");
-                count -= 1;
-                if count == 0 {
-                    break;
-                }
-            } else {
+                // count -= 1;
+                // if count == 0 {
+                break;
+                // }
             }
             a += 1;
             if (a == 10000) {
@@ -89,7 +88,13 @@ impl Parse for HtmlElement {
             children.parse_child(input)?;
         }
 
-        input.parse::<HtmlElementClose>()?;
+        let close = input.parse::<HtmlElementClose>()?;
+        if close._name != open.name {
+            return Err(syn::Error::new_spanned(
+                close.to_spanned(),
+                "标签前后不一致",
+            ));
+        }
 
         Ok(Self {
             name: open.name.clone(),
@@ -104,17 +109,17 @@ impl ToTokens for HtmlElement {
         let name = self.name.to_string();
         let mut t = quote! {};
         self.children.to_tokens(&mut t);
-    
+
         // let children = "abc".to_string();
         // dbg!(&name,&children);
         tokens.extend(quote! {
-            VNode::new(#name.to_string(), #t)
+            VNodeChild::Node(VNode::new(#name.to_string(), #t))
         });
-        dbg!(&tokens.to_string());
+        // dbg!(&tokens.to_string());
     }
 }
 
-struct HtmlElementOpen {
+pub struct HtmlElementOpen {
     tag: TagTokens,
     name: String,
     // props: ElementProps,
@@ -140,7 +145,6 @@ impl PeekValue<()> for HtmlElementOpen {
 impl Parse for HtmlElementOpen {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         TagTokens::parse_start_content(input, |input, tag| {
-            dbg!(input.to_string());
             // let at = input.parse::<TokenTree>()?;
             let name = input.parse::<Ident>()?.to_string();
             // let mut props = input.parse::<ElementProps>()?;
@@ -150,7 +154,7 @@ impl Parse for HtmlElementOpen {
     }
 }
 
-struct HtmlElementClose {
+pub struct HtmlElementClose {
     tag: TagTokens,
     _name: String,
 }
@@ -218,7 +222,6 @@ impl ToTokens for HtmlElementChildren {
         let children = self.0.iter().map(|x| {
             let mut t = quote! {};
             x.to_tokens(&mut t);
-
             t
         });
 

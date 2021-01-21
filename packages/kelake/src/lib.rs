@@ -55,7 +55,7 @@ fn v(name:&str) -> String {
 }
 
 fn test2() {
-    dbg!(react!(<div>abc</div>));
+    dbg!(react!(<div>abcs<div>asdasd</div>trertet</div>));
 }
 
 #[test]
