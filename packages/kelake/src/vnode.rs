@@ -9,7 +9,6 @@ pub struct VNode {
 impl VNode {
     pub fn new(name:String, children:Vec<VNodeChild>) -> Self {
         VNode{ name, children }
-        // "".to_string()
     }
 }
 
@@ -18,35 +17,23 @@ pub enum VNodeChild {
     Text(String),
     Node(VNode)
 }
-// impl From<f64> for VNodeChild {
-//     fn from(value: f64) -> Self {
-//         VNodeChild::Int(value)
-//     }
-// }
-
-// impl From<&str> for VNodeChild {
-//     fn from(value: &str) -> Self {
-//         VNodeChild::VText(value.to_string())
-//     }
-// }
 
 
-// impl From<bool> for VNodeChild {
-//     fn from(value: bool) -> Self {
-//         VNodeChild::Bool(value)
-//     }
-// }
-
-// impl From<Vec<VNodeChild>> for VNodeChild {
-//     fn from(value: Vec<VNodeChild>) -> Self {
-//         VNodeChild::List(value)
-//     }
-// }
+impl std::fmt::Display for VNodeChild {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "___VNodeChild___")
+    }
+}
 
 
-
-#[test]
-fn it_works() {
-    // VNodeChild::from("123");
-    assert_eq!(2 + 2, 4);
+pub fn format<T:std::fmt::Display>(child:T) -> VNodeChild {
+    let f = format!("{}", child);
+    if  f ==  "___VNodeChild___"  {
+        unsafe {
+            let q = std::mem::transmute::<&T,*const VNodeChild>(&child);
+            (*q).clone()
+        }
+    } else {
+       VNodeChild::Text(f.to_string()) 
+    }
 }

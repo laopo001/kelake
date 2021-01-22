@@ -70,7 +70,7 @@ impl Parse for HtmlElement {
             if input.is_empty() {
                 return Err(syn::Error::new_spanned(
                     open.to_spanned(),
-                    "this opening tag has no corresponding closing tag",
+                    "没有关闭标签",
                 ));
             }
 
