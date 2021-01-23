@@ -1,9 +1,10 @@
-use crate::react::HtmlVNode;
+use crate::react::{HtmlBlock, HtmlVNode};
 use crate::tag::TagTokens;
 use crate::PeekValue;
 use boolinator::Boolinator;
-use proc_macro2::{Ident, Span, TokenStream, TokenTree};
+use proc_macro2::{Ident, Literal, Punct, Span, TokenStream, TokenTree};
 use quote::{quote, ToTokens};
+use serde_json::{json, Value};
 use syn::buffer::Cursor;
 use syn::{
     parse::{Parse, ParseBuffer, ParseStream, Result},
@@ -12,7 +13,7 @@ use syn::{
 
 pub struct HtmlElement {
     name: String,
-    // props: ElementProps,
+    props: ElementProps,
     children: HtmlElementChildren,
 }
 
@@ -41,45 +42,24 @@ impl Parse for HtmlElement {
         if open.is_self_closing() {
             return Ok(HtmlElement {
                 name: open.name,
-                // props: open.props,
+                props: open.props,
                 children: HtmlElementChildren::new(),
             });
         }
-
-        // if let TagName::Lit(name) = &open.name {
-        //     // Void elements should not have children.
-        //     // See https://html.spec.whatwg.org/multipage/syntax.html#void-elements
-        //     //
-        //     // For dynamic tags this is done at runtime!
-        //     match name.to_ascii_lowercase_string().as_str() {
-        //         "area" | "base" | "br" | "col" | "embed" | "hr" | "img" | "input" | "link"
-        //         | "meta" | "param" | "source" | "track" | "wbr" => {
-        //             return Err(syn::Error::new_spanned(open.to_spanned(), format!("the tag `<{}>` is a void element and cannot have children (hint: rewrite this as `<{0}/>`)", name)));
-        //         }
-        //         _ => {}
-        //     }
-        // }
 
         // let open_key = open.name.get_key();
         let mut children = HtmlElementChildren::new();
         // let mut count = 1;
         let mut a = 1;
-       
+
         loop {
             dbg!(input.to_string());
             if input.is_empty() {
-                return Err(syn::Error::new_spanned(
-                    open.to_spanned(),
-                    "没有关闭标签",
-                ));
+                return Err(syn::Error::new_spanned(open.to_spanned(), "没有关闭标签"));
             }
 
             if HtmlElementClose::peek(input.cursor()).is_some() {
-                dbg!("HtmlElementClose");
-                // count -= 1;
-                // if count == 0 {
                 break;
-                // }
             }
             a += 1;
             if (a == 10000) {
@@ -98,7 +78,7 @@ impl Parse for HtmlElement {
 
         Ok(Self {
             name: open.name.clone(),
-            // props: open.props,
+            props: open.props,
             children,
         })
     }
@@ -109,11 +89,11 @@ impl ToTokens for HtmlElement {
         let name = self.name.to_string();
         let mut t = quote! {};
         self.children.to_tokens(&mut t);
-
+        let props = self.props.0.clone();
         // let children = "abc".to_string();
         // dbg!(&name,&children);
         tokens.extend(quote! {
-            VNodeChild::Node(VNode::new(#name.to_string(), #t))
+            VNodeChild::Node(VNode::new(#name.to_string(), json!(#props) , #t))
         });
         // dbg!(&tokens.to_string());
     }
@@ -122,7 +102,7 @@ impl ToTokens for HtmlElement {
 pub struct HtmlElementOpen {
     tag: TagTokens,
     name: String,
-    // props: ElementProps,
+    props: ElementProps,
 }
 impl HtmlElementOpen {
     fn is_self_closing(&self) -> bool {
@@ -147,9 +127,9 @@ impl Parse for HtmlElementOpen {
         TagTokens::parse_start_content(input, |input, tag| {
             // let at = input.parse::<TokenTree>()?;
             let name = input.parse::<Ident>()?.to_string();
-            // let mut props = input.parse::<ElementProps>()?;
+            let mut props = input.parse::<ElementProps>()?;
 
-            Ok(Self { tag, name })
+            Ok(Self { tag, name, props })
         })
     }
 }
@@ -232,5 +212,26 @@ impl ToTokens for HtmlElementChildren {
                 ),*
             ]
         });
+    }
+}
+
+pub struct ElementProps(TokenStream);
+
+impl Parse for ElementProps {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
+        let key = input.parse::<Ident>()?.to_string();
+        (input.parse::<Punct>()?.to_string() == "=").as_option();
+        if HtmlBlock::peek(input.cursor()).is_some() {
+            let mut t = quote! {};
+            let block = input.parse::<HtmlBlock>()?;
+            block.to_tokens(&mut t);
+            dbg!(&t);
+            let value = quote!({ #key: #t });
+            return Ok(ElementProps(value));
+        } else {
+            let value = input.parse::<Literal>()?.to_string();
+            let value = quote!({ #key: #value});
+            Ok(ElementProps(value))
+        }
     }
 }

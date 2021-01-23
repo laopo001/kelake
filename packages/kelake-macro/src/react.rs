@@ -138,10 +138,11 @@ impl Parse for HtmlBlock {
 impl ToTokens for HtmlBlock {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         match self {
-            HtmlBlock::Expr(expr) => {
-                tokens.extend(quote! {{
+            HtmlBlock::Expr(expr) => { 
+                // 去掉了一个括号
+                tokens.extend(quote! {
                     format(#expr)
-                }});
+                });
             }
         }
     }
