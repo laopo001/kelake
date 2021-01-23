@@ -1,4 +1,5 @@
 #![allow(unused)]
+#![feature(core_intrinsics)]
 pub mod vnode;
 use serde_json::{json, Value};
 // pub trait Component {
@@ -13,19 +14,19 @@ use serde_json::{json, Value};
 //         react!($x)
 //     }
 // }
-//     // ($(<$tag_start:ident>$children:tt</$tag_end:ident>)* ) => {
-//     //     {
-//     //         let mut arr = vec![];
-//     //         $(
-//     //             arr.push(vnode::create_base_element(
-//     //                 stringify!($tag_start),
-//     //                 json! {{}},
-//     //                 vnode::VNode::from(html!($children)),
-//     //             ));
-//     //         )*
-//     //         arr
-//     //     }
-//     // };
+    // ($(<$tag_start:ident>$children:tt</$tag_end:ident>)* ) => {
+    //     {
+    //         let mut arr = vec![];
+    //         $(
+    //             arr.push(vnode::create_base_element(
+    //                 stringify!($tag_start),
+    //                 json! {{}},
+    //                 vnode::VNode::from(html!($children)),
+    //             ));
+    //         )*
+    //         arr
+    //     }
+    // };
 //     ($children:ident) => {
 //         stringify!($children)
 //     };

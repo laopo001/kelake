@@ -141,7 +141,7 @@ impl ToTokens for HtmlBlock {
             HtmlBlock::Expr(expr) => { 
                 // 去掉了一个括号
                 tokens.extend(quote! {
-                    format(#expr)
+                    format(&#expr)
                 });
             }
         }

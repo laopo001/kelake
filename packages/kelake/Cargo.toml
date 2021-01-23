@@ -10,3 +10,4 @@ version = "0.1.0"
 kelake-macro = {path = "../kelake-macro"}
 serde_json = "1.0.61"
 serde = { version = "1.0.61", features = ["derive"] }
+impls = "1.0.3"
