@@ -6,12 +6,12 @@ fn  format() -> String {
 }
 
 fn main() {
-    // let a = react!(<div>asf</div>);
+    let a = react!(<div>asf</div>);
     // dbg!(react!(<div>123<div>qwr{ "asdf" }{{a}}</div></div>));
 
-    let a = "asdf";
+    // let a = "asdf";
     dbg!(react! {
-      <a src={a}> {a}</a>
+      <a src={a.clone()}> {a}</a>
      } );
     // dbg!( v
     //     a

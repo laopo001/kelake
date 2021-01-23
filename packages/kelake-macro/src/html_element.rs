@@ -219,6 +219,10 @@ pub struct ElementProps(TokenStream);
 
 impl Parse for ElementProps {
     fn parse(input: ParseStream) -> syn::Result<Self> {
+        if input.cursor().ident().is_none() {
+            return Ok(ElementProps((quote! {{}})));
+        }
+      
         let key = input.parse::<Ident>()?.to_string();
         (input.parse::<Punct>()?.to_string() == "=").as_option();
         if HtmlBlock::peek(input.cursor()).is_some() {
