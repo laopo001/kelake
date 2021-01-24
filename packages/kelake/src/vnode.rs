@@ -1,4 +1,4 @@
-use impls::impls;
+
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::any::Any;
@@ -26,15 +26,15 @@ pub enum VNodeChild {
     NodeList(Vec<VNodeChild>),
 }
 
-fn type_name<T>(_: T) -> String {
-    unsafe { std::intrinsics::type_name::<T>().to_string() }
-}
+// fn type_name<T>(_: T) -> String {
+//     unsafe { std::intrinsics::type_name::<T>().to_string() }
+// }
 
-impl std::fmt::Display for VNodeChild {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", "____kelake::vnode::VNodeChild")
-    }
-}
+// impl std::fmt::Display for VNodeChild {
+//     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+//         write!(f, "{}", "____kelake::vnode::VNodeChild")
+//     }
+// }
 
 // pub fn format2<T: std::fmt::Display >(child: T) -> VNodeChild {
 //     // println!( "{}", type_name(child.clone()));

@@ -6,8 +6,76 @@ version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+
+[lib]
+crate-type = ["cdylib"]
+
+
+
 [dependencies]
+wasm-bindgen = { version = "0.2.69", features = ["serde-serialize"]  }
+js-sys = "0.3.46"
+wasm-bindgen-futures = "0.4.19"
 kelake-macro = {path = "../kelake-macro"}
 serde_json = "1.0.61"
 serde = { version = "1.0.61", features = ["derive"] }
-impls = "1.0.3"
+
+[dependencies.web-sys]
+version = "0.3.46"
+optional = true
+features = [
+  "AbortController",
+  "AbortSignal",
+  "AnimationEvent",
+  "BinaryType",
+  "Blob",
+  "BlobPropertyBag",
+  "console",
+  "DedicatedWorkerGlobalScope",
+  "Document",
+  "DomTokenList",
+  "DragEvent",
+  "Element",
+  "ErrorEvent",
+  "Event",
+  "EventTarget",
+  "File",
+  "FileList",
+  "FileReader",
+  "FocusEvent",
+  "Headers",
+  "HtmlElement",
+  "HtmlButtonElement",
+  "HtmlInputElement",
+  "HtmlSelectElement",
+  "HtmlTextAreaElement",
+  "InputEvent",
+  "KeyboardEvent",
+  "Location",
+  "MessageEvent",
+  "MouseEvent",
+  "Node",
+  "ObserverCallback",
+  "PointerEvent",
+  "ProgressEvent",
+  "ReferrerPolicy",
+  "Request",
+  "RequestCache",
+  "RequestCredentials",
+  "RequestInit",
+  "RequestMode",
+  "RequestRedirect",
+  "Response",
+  "Storage",
+  "Text",
+  "TouchEvent",
+  "TransitionEvent",
+  "UiEvent",
+  "Url",
+  "WebSocket",
+  "WheelEvent",
+  "Window",
+  "Worker",
+  "WorkerGlobalScope",
+  "WorkerOptions",
+]

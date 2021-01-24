@@ -1,5 +1,5 @@
 #![allow(unused)]
-#![feature(core_intrinsics)]
+// #![feature(core_intrinsics)]
 // #[cfg(test)]
 // mod tests {
 //     #[test]
