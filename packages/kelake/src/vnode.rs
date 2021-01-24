@@ -24,7 +24,14 @@ pub enum VNodeChild {
     Text(String),
     Node(VNode),
     NodeList(Vec<VNodeChild>),
+
 }
+
+pub trait Component<T> {
+    fn create(props: T) -> Self;
+    fn render(&self) -> VNodeChild;
+}
+
 
 // fn type_name<T>(_: T) -> String {
 //     unsafe { std::intrinsics::type_name::<T>().to_string() }

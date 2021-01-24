@@ -1,8 +1,8 @@
 #![allow(unused)]
 #![feature(core_intrinsics)]
+use kelake::vnode::{format, Component, ToVNodeChild, VNode, VNodeChild};
 use kelake_macro::react;
 use serde_json::{json, Value};
-
 // trait TypeName {
 //     fn process(&self) -> String;
 // }
@@ -22,6 +22,31 @@ fn type_name<T>(_: T) -> String {
     unsafe { std::intrinsics::type_name::<T>().to_string() }
 }
 
+#[derive(Clone)]
+struct Select {
+    s: i32,
+    props: SelectInput,
+}
+#[derive(Clone)]
+struct SelectInput {
+    age: i32,
+}
+
+impl Component<SelectInput> for Select {
+    fn create(props: SelectInput) -> Self {
+        return Self { s: 1, props };
+    }
+    fn render(&self) -> VNodeChild {
+        return react!(<div>{self.props.age}</div>);
+    }
+}
+
+impl ToVNodeChild for Select {
+    fn to(self) -> VNodeChild {
+        self.render()
+    }
+}
+
 fn main() {
     // let mut b = json!({"a":"123","b":"234"}).as_object().unwrap();
     // let mut c = json!({"d":"123"}).as_object().unwrap();
@@ -32,7 +57,7 @@ fn main() {
     // println!("======================");
     // let a ="123";
     // dbg!(type_name(&react!(<div>{a}</div>)));
-    let a = vec![react!(<div>ww</div>),react!(<div>ppp</div>)];
+    let a = vec![react!(<Select a={1}></Select>), react!(<div>ppp</div>)];
     dbg!(react!(<div>123<div>qwr{ "asdf" }{{a}}</div></div>));
 
     // let a = "asdf";

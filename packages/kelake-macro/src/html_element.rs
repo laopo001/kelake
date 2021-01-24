@@ -107,6 +107,7 @@ pub struct HtmlElementOpen {
     props: ElementProps,
     pub div: Option<Token![/]>,
     pub gt: Token![>],
+    // is_component: Bool
 }
 impl HtmlElementOpen {
     fn is_self_closing(&self) -> bool {
