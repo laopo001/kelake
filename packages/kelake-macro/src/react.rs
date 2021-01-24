@@ -22,13 +22,14 @@ impl ToTokens for HtmlRootVNode {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let mut t = quote! {};
         self.0.to_tokens(&mut t);
-        println!("解析后:{}", &t.to_string());
+       
         tokens.extend(quote! {
             {
                 use kelake::vnode::{VNode, VNodeChild, format};
                 #t
             }
         });
+        println!("解析后:{}", tokens);
     }
 }
 

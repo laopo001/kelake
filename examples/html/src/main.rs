@@ -37,7 +37,7 @@ fn main() {
 
     let a = "asdf";
     dbg!(react! {
-     <Ga style={"safdasdf"}> {a}</Ga>
+     <Ga style={"safdasdf"}> <div>{a}</div> </Ga>
     });
     // dbg!( v
     //     a
