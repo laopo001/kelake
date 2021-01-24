@@ -6,11 +6,11 @@ use std::convert::From;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VNode {
     name: String,
-    props: Value,
+    props: Vec<(String, String)>,
     children: Vec<VNodeChild>,
 }
 impl VNode {
-    pub fn new(name: String, props: Value, children: Vec<VNodeChild>) -> Self {
+    pub fn new(name: String, props: Vec<(String, String)>, children: Vec<VNodeChild>) -> Self {
         VNode {
             name,
             props,
@@ -51,14 +51,14 @@ impl std::fmt::Display for VNodeChild {
 //     }
 // }
 
-pub trait ToVNodeChild {
-    fn to(&self) -> VNodeChild;
+pub trait ToVNodeChild:Clone {
+    fn to(self) -> VNodeChild;
 }
 
 macro_rules! tov {
     ( ($t:tt) ) => {
         impl ToVNodeChild for $t {
-            fn to(&self) -> VNodeChild {
+            fn to(self) -> VNodeChild {
                 VNodeChild::Text(format!("{}", self))
             }
         }
@@ -78,30 +78,24 @@ tov!((bool));
 // impl ToVNodeChild for f64 {}
 // impl ToVNodeChild for String {}
 impl ToVNodeChild for &str {
-    fn to(&self) -> VNodeChild {
-        VNodeChild::Text(format!("{}", self))
-    }
-}
-
-impl ToVNodeChild for dyn std::fmt::Display {
-    fn to(&self) -> VNodeChild {
+    fn to(self) -> VNodeChild {
         VNodeChild::Text(format!("{}", self))
     }
 }
 
 impl ToVNodeChild for VNodeChild {
-    fn to(&self) -> VNodeChild {
-        unsafe { self.clone() }
+    fn to(self) -> VNodeChild {
+        unsafe { self }
     }
 }
 
 impl ToVNodeChild for Vec<VNodeChild> {
-    fn to(&self) -> VNodeChild {
-        VNodeChild::NodeList(unsafe { self.clone() })
+    fn to(self) -> VNodeChild {
+        VNodeChild::NodeList(unsafe { self })
     }
 }
 
-pub fn format(s: &dyn ToVNodeChild) -> VNodeChild {
+pub fn format(s: impl ToVNodeChild) -> VNodeChild {
     s.to()
     // if let Some(t) = s.downcast_ref::<String>() {
     //     VNodeChild::Text(t.to_string())

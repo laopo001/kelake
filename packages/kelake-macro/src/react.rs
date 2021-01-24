@@ -56,7 +56,6 @@ impl Parse for HtmlVNode {
     }
 }
 
-
 impl ToTokens for HtmlVNode {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match self {
@@ -114,12 +113,15 @@ impl ToTokens for HtmlString {
     }
 }
 
-
-pub enum HtmlBlock {
-    // Node(HtmlVNode),
-    Expr(Expr),
+pub struct HtmlBlock(Expr);
+impl HtmlBlock {
+    pub fn get_real_tokens(&self) -> TokenStream {
+        let expr = self.0.clone();
+        quote! {
+            #expr
+        }
+    }
 }
-
 impl PeekValue<()> for HtmlBlock {
     fn peek(cursor: Cursor) -> Option<()> {
         cursor.group(Delimiter::Brace).map(|_| ())
@@ -131,19 +133,16 @@ impl Parse for HtmlBlock {
         let content;
         let brace = braced!(content in input);
 
-        Ok(HtmlBlock::Expr(content.parse()?))
+        Ok(HtmlBlock(content.parse()?))
     }
 }
 
 impl ToTokens for HtmlBlock {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
-        match self {
-            HtmlBlock::Expr(expr) => { 
-                // 去掉了一个括号
-                tokens.extend(quote! {
-                    format(&#expr)
-                });
-            }
-        }
+        let expr = self.0.clone();
+        // 去掉了一个括号
+        tokens.extend(quote! {
+            format(#expr)
+        });
     }
 }

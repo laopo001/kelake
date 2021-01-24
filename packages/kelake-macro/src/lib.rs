@@ -21,7 +21,7 @@ use syn::{buffer::Cursor, parse_macro_input};
 
 #[proc_macro]
 pub fn react(input: TokenStream) -> TokenStream {
-    dbg!(&input);
+    // dbg!(&input);
     let root = parse_macro_input!(input as HtmlRootVNode);
     TokenStream::from(root.into_token_stream())
 }

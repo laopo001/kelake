@@ -23,19 +23,21 @@ fn type_name<T>(_: T) -> String {
 }
 
 fn main() {
-    // let b = json!({"a":"123","b":"234"});
-    // for i in b.as_object().iter() {
-    //     dbg!(i);
+    // let mut b = json!({"a":"123","b":"234"}).as_object().unwrap();
+    // let mut c = json!({"d":"123"}).as_object().unwrap();
+    // b.extend(c.iter());
+    // for (key, value) in b.as_object().unwrap() {
+    //     dbg!(key, value);
     // }
     // println!("======================");
     // let a ="123";
     // dbg!(type_name(&react!(<div>{a}</div>)));
-    let a = vec![react!(<div>ww</div>),react!(<div>ppp</div>)];
+    // let a = vec![react!(<div>ww</div>),react!(<div>ppp</div>)];
     // dbg!(react!(<div>123<div>qwr{ "asdf" }{{a}}</div></div>));
 
     let a = "asdf";
     dbg!(react! {
-     <a src={123}> {a}</a>
+     <a style={"safdasdf"}> {a}</a>
     });
     // dbg!( v
     //     a

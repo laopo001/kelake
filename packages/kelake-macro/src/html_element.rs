@@ -89,11 +89,14 @@ impl ToTokens for HtmlElement {
         let name = self.name.to_string();
         let mut t = quote! {};
         self.children.to_tokens(&mut t);
-        let props = self.props.0.clone();
+        // let props = self.props.0.clone();
+
+        let mut props_t = quote! {};
+        self.props.to_tokens(&mut props_t);
         // let children = "abc".to_string();
         // dbg!(&name,&children);
         tokens.extend(quote! {
-            VNodeChild::Node(VNode::new(#name.to_string(), json!(#props) , #t))
+            VNodeChild::Node(VNode::new(#name.to_string(), #props_t , #t))
         });
         // dbg!(&tokens.to_string());
     }
@@ -215,12 +218,12 @@ impl ToTokens for HtmlElementChildren {
     }
 }
 
-pub struct ElementProps(TokenStream);
+pub struct ElementProps(Vec<TokenStream>);
 
 impl Parse for ElementProps {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         if input.cursor().ident().is_none() {
-            return Ok(ElementProps((quote! {{}})));
+            return Ok(ElementProps(vec![quote!{}]));
         }
       
         let key = input.parse::<Ident>()?.to_string();
@@ -229,13 +232,29 @@ impl Parse for ElementProps {
             let mut t = quote! {};
             let block = input.parse::<HtmlBlock>()?;
             block.to_tokens(&mut t);
-            dbg!(&t);
-            let value = quote!({ #key: #t });
-            return Ok(ElementProps(value));
+            t = block.get_real_tokens();
+            let q = quote!(( #key.to_string(), format!("{}", #t) ));
+            return Ok(ElementProps(vec![q]));
+    
+   
         } else {
-            let value = input.parse::<Literal>()?.to_string();
-            let value = quote!({ #key: #value});
-            Ok(ElementProps(value))
+            let value = input.parse::<Literal>()?;
+            let q = quote!(( #key.to_string(), #value.to_string()));
+            return Ok(ElementProps(vec![q]));
         }
+    }
+}
+
+impl ToTokens for ElementProps {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let children = self.0.iter();
+  
+        tokens.extend(quote! {
+            vec![
+                #(
+                    #children
+                ),*
+            ]
+        });
     }
 }
