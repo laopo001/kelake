@@ -22,18 +22,16 @@ fn type_name<T>(_: T) -> String {
     unsafe { std::intrinsics::type_name::<T>().to_string() }
 }
 
-#[derive(Clone)]
 struct Select {
     s: i32,
-    props: SelectInput,
+    props: SelectProps,
 }
-#[derive(Clone)]
-struct SelectInput {
+struct SelectProps {
     age: i32,
 }
 
-impl Component<SelectInput> for Select {
-    fn create(props: SelectInput) -> Self {
+impl Component<SelectProps> for Select {
+    fn create(props: SelectProps) -> Self {
         return Self { s: 1, props };
     }
     fn render(&self) -> VNodeChild {
@@ -57,8 +55,8 @@ fn main() {
     // println!("======================");
     // let a ="123";
     // dbg!(type_name(&react!(<div>{a}</div>)));
-    let a = vec![react!(<Select a={1}></Select>), react!(<div>ppp</div>)];
-    dbg!(react!(<div>123<div>qwr{ "asdf" }{{a}}</div></div>));
+    let a = react!(<Select age={9999}></Select>);
+    dbg!(react!(<div>123<div>qwr{ "asdf" }{{a}}</div>123</div>));
 
     // let a = "asdf";
     // dbg!(react! {

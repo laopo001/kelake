@@ -12,8 +12,10 @@ use syn::{
 
 pub struct HtmlElement {
     name: String,
-    props: ElementProps,
+    element_props: Option<ElementProps>,
+    is_component: bool,
     children: HtmlElementChildren,
+    component_props: Option<ComponentProps>,
 }
 
 impl PeekValue<()> for HtmlElement {
@@ -37,11 +39,14 @@ impl Parse for HtmlElement {
         }
         let open = input.parse::<HtmlElementOpen>()?;
         // Return early if it's a self-closing tag
+        let is_component = open.is_component;
 
         if open.is_self_closing() {
             return Ok(HtmlElement {
                 name: open.name,
-                props: open.props,
+                element_props: open.element_props,
+                component_props: open.component_props,
+                is_component,
                 children: HtmlElementChildren::new(),
             });
         }
@@ -77,7 +82,9 @@ impl Parse for HtmlElement {
 
         Ok(Self {
             name: open.name.clone(),
-            props: open.props,
+            component_props: open.component_props,
+            element_props: open.element_props,
+            is_component,
             children,
         })
     }
@@ -91,12 +98,26 @@ impl ToTokens for HtmlElement {
         // let props = self.props.0.clone();
 
         let mut props_t = quote! {};
-        self.props.to_tokens(&mut props_t);
+        if self.is_component {
+            let name_ident = Ident::new(&name, Span::call_site());
+            let props_ident = Ident::new(&(name + "Props"), Span::call_site());
+            props_t.extend(quote!(#props_ident));
+            self.component_props.as_ref().unwrap().to_tokens(&mut props_t);
+ 
+            tokens.extend(quote! {
+                #name_ident::create(#props_t )
+            });
+     
+        } else {
+            self.element_props.as_ref().unwrap().to_tokens(&mut props_t);
+            tokens.extend(quote! {
+                VNodeChild::Node(VNode::new(#name.to_string(), #props_t , #t))
+            });
+        }
+
         // let children = "abc".to_string();
         // dbg!(&name,&children);
-        tokens.extend(quote! {
-            VNodeChild::Node(VNode::new(#name.to_string(), #props_t , #t))
-        });
+        
         // dbg!(&tokens.to_string());
     }
 }
@@ -104,10 +125,11 @@ impl ToTokens for HtmlElement {
 pub struct HtmlElementOpen {
     pub lt: Token![<],
     name: String,
-    props: ElementProps,
+    element_props: Option<ElementProps>,
     pub div: Option<Token![/]>,
     pub gt: Token![>],
-    // is_component: Bool
+    is_component: bool,
+    component_props: Option<ComponentProps>,
 }
 impl HtmlElementOpen {
     fn is_self_closing(&self) -> bool {
@@ -137,8 +159,19 @@ impl Parse for HtmlElementOpen {
         };
         (punct.to_string() == "<").as_option();
         let name = input.parse::<Ident>()?.to_string();
-        let mut props = input.parse::<ElementProps>()?;
 
+        let is_component = if name.bytes().next().unwrap().is_ascii_lowercase() {
+            false
+        } else {
+            true
+        };
+        let mut element_props = None;
+        let mut component_props = None;
+        if is_component {
+            component_props = Some(input.parse::<ComponentProps>()?);
+        } else {
+            element_props = Some(input.parse::<ElementProps>()?);
+        }
         let mut is_close = false;
         let s = input.parse::<Punct>()?;
         let mut div: Option<Token![/]> = None;
@@ -152,9 +185,11 @@ impl Parse for HtmlElementOpen {
         Ok(Self {
             lt,
             name,
-            props,
+            element_props,
             div,
             gt,
+            is_component,
+            component_props,
         })
     }
 }
@@ -198,12 +233,7 @@ impl Parse for HtmlElementClose {
         let s = input.parse::<Punct>()?;
         let gt = syn::token::Gt { spans: [s.span()] };
 
-        Ok(Self {
-            lt,
-            div,
-            name,
-            gt,
-        })
+        Ok(Self { lt, div, name, gt })
     }
 }
 
@@ -283,6 +313,56 @@ impl ToTokens for ElementProps {
                     #children
                 ),*
             ]
+        });
+    }
+}
+
+pub struct ComponentProps(Vec<TokenStream>);
+
+impl Parse for ComponentProps {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
+        if input.cursor().ident().is_none() {
+            return Ok(ComponentProps(vec![quote! {}]));
+        }
+        let mut arr = vec![];
+        loop {
+            let key = input.parse::<Ident>()?;
+            (input.parse::<Punct>()?.to_string() == "=").as_option();
+            if HtmlBlock::peek(input.cursor()).is_some() {
+                let mut t = quote! {};
+                let block = input.parse::<HtmlBlock>()?;
+                block.to_tokens(&mut t);
+                t = block.get_real_tokens();
+                let q = quote!( #key :  #t );
+                arr.push(q);
+            } else {
+                let value = input.parse::<Literal>()?;
+                let q = quote!( #key : #value.to_string());
+                arr.push(q);
+            }
+            if let Some((punct, cursor)) = input.cursor().punct() {
+                if (punct.as_char() == '/') {
+                    break;
+                }
+                if (punct.as_char() == '>') {
+                    break;
+                }
+            }
+        }
+        Ok(ComponentProps(arr))
+    }
+}
+
+impl ToTokens for ComponentProps {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let children = self.0.iter();
+
+        tokens.extend(quote! {
+            {
+                #(
+                    #children
+                ),*
+            }
         });
     }
 }

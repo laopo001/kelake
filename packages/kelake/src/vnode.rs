@@ -58,7 +58,7 @@ pub trait Component<T> {
 //     }
 // }
 
-pub trait ToVNodeChild:Clone {
+pub trait ToVNodeChild {
     fn to(self) -> VNodeChild;
 }
 
