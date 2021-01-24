@@ -1,8 +1,23 @@
 #![allow(unused)]
 // #![feature(core_intrinsics)]
+#[macro_use]
 pub mod vnode;
 // pub mod render;
 use serde_json::{json, Value};
+
+use vnode::ToVNodeChild;
+#[macro_export]
+macro_rules! to_vnode_child_vec {
+    ($($child: expr),*) => {
+        {
+            let mut arr = Vec::new();
+            $(
+                arr.push(ToVNodeChild::to($child));
+            )*
+            arr
+        }
+    };
+}
 
 // pub trait Component {
 //     // type Properties: Properties;

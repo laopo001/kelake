@@ -22,10 +22,11 @@ impl ToTokens for HtmlRootVNode {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let mut t = quote! {};
         self.0.to_tokens(&mut t);
-       
+
         tokens.extend(quote! {
             {
                 use kelake::vnode::{VNode, VNodeChild, format};
+                use kelake::to_vnode_child_vec;
                 #t
             }
         });
@@ -141,9 +142,9 @@ impl Parse for HtmlBlock {
 impl ToTokens for HtmlBlock {
     fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
         let expr = self.0.clone();
-        // 去掉了一个括号
+        // format(#expr)去
         tokens.extend(quote! {
-            format(#expr)
+            #expr
         });
     }
 }

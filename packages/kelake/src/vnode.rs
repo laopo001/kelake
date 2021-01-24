@@ -1,4 +1,4 @@
-
+#[macro_use]
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::any::Any;
@@ -10,11 +10,15 @@ pub struct VNode {
     children: Vec<VNodeChild>,
 }
 impl VNode {
-    pub fn new(name: String, props: Vec<(String, String)>, children: Vec<VNodeChild>) -> Self {
+    pub fn new<T: IntoIterator<Item = impl ToVNodeChild>>(
+        name: String,
+        props: Vec<(String, String)>,
+        children: T,
+    ) -> Self {
         VNode {
             name,
             props,
-            children,
+            children: children.into_iter().map(|x| (x).to()).collect(),
         }
     }
 }
@@ -24,14 +28,12 @@ pub enum VNodeChild {
     Text(String),
     Node(VNode),
     NodeList(Vec<VNodeChild>),
-
 }
 
 pub trait Component<T> {
-    fn create(props: T) -> Self;
+    fn create(props: T, children: Vec<VNodeChild>) -> Self;
     fn render(&self) -> VNodeChild;
 }
-
 
 // fn type_name<T>(_: T) -> String {
 //     unsafe { std::intrinsics::type_name::<T>().to_string() }
@@ -71,7 +73,6 @@ macro_rules! tov {
         }
     };
 }
-
 
 tov!((i32));
 tov!((i64));

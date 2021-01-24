@@ -105,7 +105,7 @@ impl ToTokens for HtmlElement {
             self.component_props.as_ref().unwrap().to_tokens(&mut props_t);
  
             tokens.extend(quote! {
-                #name_ident::create(#props_t )
+                #name_ident::create(#props_t,  #t)
             });
      
         } else {
@@ -114,11 +114,6 @@ impl ToTokens for HtmlElement {
                 VNodeChild::Node(VNode::new(#name.to_string(), #props_t , #t))
             });
         }
-
-        // let children = "abc".to_string();
-        // dbg!(&name,&children);
-        
-        // dbg!(&tokens.to_string());
     }
 }
 
@@ -258,7 +253,7 @@ impl ToTokens for HtmlElementChildren {
         });
 
         tokens.extend(quote! {
-            vec![
+            to_vnode_child_vec![
                 #(
                     #children
                 ),*

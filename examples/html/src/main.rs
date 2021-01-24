@@ -1,5 +1,7 @@
 #![allow(unused)]
 #![feature(core_intrinsics)]
+// #[macro_use]
+// extern crate kelake;
 use kelake::vnode::{format, Component, ToVNodeChild, VNode, VNodeChild};
 use kelake_macro::react;
 use serde_json::{json, Value};
@@ -31,7 +33,7 @@ struct SelectProps {
 }
 
 impl Component<SelectProps> for Select {
-    fn create(props: SelectProps) -> Self {
+    fn create(props: SelectProps, c: Vec<VNodeChild>) -> Self {
         return Self { s: 1, props };
     }
     fn render(&self) -> VNodeChild {
@@ -46,6 +48,9 @@ impl ToVNodeChild for Select {
 }
 
 fn main() {
+    // let a:Vec<impl ToVNodeChild> = vec![]
+    // a.push("value");
+    // a.push(1);
     // let mut b = json!({"a":"123","b":"234"}).as_object().unwrap();
     // let mut c = json!({"d":"123"}).as_object().unwrap();
     // b.extend(c.iter());
@@ -55,8 +60,12 @@ fn main() {
     // println!("======================");
     // let a ="123";
     // dbg!(type_name(&react!(<div>{a}</div>)));
+    // let a = vec![ react!(<Select age={9999}></Select>) ] ;
     let a = react!(<Select age={9999}></Select>);
-    dbg!(react!(<div>123<div>qwr{ "asdf" }{{a}}</div>123</div>));
+    // dbg!(to_vnode_child_vec!(a));
+    dbg!(react! {
+        <div>123<div>qwr{ "asdf" }{a}</div>123</div>
+    });
 
     // let a = "asdf";
     // dbg!(react! {
