@@ -32,13 +32,13 @@ fn main() {
     // println!("======================");
     // let a ="123";
     // dbg!(type_name(&react!(<div>{a}</div>)));
-    // let a = vec![react!(<div>ww</div>),react!(<div>ppp</div>)];
-    // dbg!(react!(<div>123<div>qwr{ "asdf" }{{a}}</div></div>));
+    let a = vec![react!(<div>ww</div>),react!(<div>ppp</div>)];
+    dbg!(react!(<div>123<div>qwr{ "asdf" }{{a}}</div></div>));
 
-    let a = "asdf";
-    dbg!(react! {
-     <Ga style={"safdasdf"}> <div>{a}</div> </Ga>
-    });
+    // let a = "asdf";
+    // dbg!(react! {
+    //  <Ga style={"safdasdf"}> <div>{a}</div> </Ga>
+    // });
     // dbg!( v
     //     a
     // });

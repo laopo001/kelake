@@ -1,5 +1,4 @@
 use crate::react::{HtmlBlock, HtmlVNode};
-use crate::tag::TagTokens;
 use crate::PeekValue;
 use boolinator::Boolinator;
 use proc_macro2::{Ident, Literal, Punct, Span, TokenStream, TokenTree};
@@ -69,7 +68,7 @@ impl Parse for HtmlElement {
         }
 
         let close = input.parse::<HtmlElementClose>()?;
-        if close._name != open.name {
+        if close.name != open.name {
             return Err(syn::Error::new_spanned(
                 close.to_spanned(),
                 "标签前后不一致",
@@ -103,17 +102,20 @@ impl ToTokens for HtmlElement {
 }
 
 pub struct HtmlElementOpen {
-    tag: TagTokens,
+    pub lt: Token![<],
     name: String,
     props: ElementProps,
+    pub div: Option<Token![/]>,
+    pub gt: Token![>],
 }
 impl HtmlElementOpen {
     fn is_self_closing(&self) -> bool {
-        self.tag.div.is_some()
+        self.div.is_some()
     }
 
     fn to_spanned(&self) -> impl ToTokens {
-        self.tag.to_spanned()
+        let Self { lt, gt, .. } = self;
+        quote! {#lt#gt}
     }
 }
 
@@ -121,29 +123,51 @@ impl PeekValue<()> for HtmlElementOpen {
     fn peek(cursor: Cursor) -> Option<()> {
         let (punct, cursor) = cursor.punct()?;
         (punct.as_char() == '<').as_option()?;
+        let (ident, cursor) = cursor.ident()?;
         Some(())
     }
 }
 
 impl Parse for HtmlElementOpen {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        TagTokens::parse_start_content(input, |input, tag| {
-            // let at = input.parse::<TokenTree>()?;
-            let name = input.parse::<Ident>()?.to_string();
-            let mut props = input.parse::<ElementProps>()?;
+        let punct = input.parse::<Punct>()?;
+        let lt = syn::token::Lt {
+            spans: [punct.span()],
+        };
+        (punct.to_string() == "<").as_option();
+        let name = input.parse::<Ident>()?.to_string();
+        let mut props = input.parse::<ElementProps>()?;
 
-            Ok(Self { tag, name, props })
+        let mut is_close = false;
+        let s = input.parse::<Punct>()?;
+        let mut div: Option<Token![/]> = None;
+        if (s.to_string() == "/").as_option().is_some() {
+            div = Some(syn::token::Div { spans: [s.span()] });
+            (input.parse::<Punct>()?.to_string() != ">").as_option();
+        };
+        (s.to_string() == ">").as_option();
+        let gt = syn::token::Gt { spans: [s.span()] };
+
+        Ok(Self {
+            lt,
+            name,
+            props,
+            div,
+            gt,
         })
     }
 }
 
 pub struct HtmlElementClose {
-    tag: TagTokens,
-    _name: String,
+    pub lt: Token![<],
+    pub div: Token![/],
+    name: String,
+    pub gt: Token![>],
 }
 impl HtmlElementClose {
     fn to_spanned(&self) -> impl ToTokens {
-        self.tag.to_spanned()
+        let Self { lt, gt, .. } = self;
+        quote! {#lt#gt}
     }
 }
 
@@ -151,39 +175,33 @@ impl PeekValue<()> for HtmlElementClose {
     fn peek(cursor: Cursor) -> Option<()> {
         let (punct, cursor) = cursor.punct()?;
         (punct.as_char() == '<').as_option()?;
-
         let (punct, cursor) = cursor.punct()?;
         (punct.as_char() == '/').as_option()?;
-
-        // let (tag_key, cursor) = TagName::peek(cursor)?;
-        // if let TagKey::Lit(name) = &tag_key {
-        //     non_capitalized_ascii(&name.to_string()).as_option()?;
-        // }
         let (ident, cursor) = cursor.ident()?;
-        // dbg!(ident.to_string());
-        // dbg!(punct.as_char());
         let (punct, _) = cursor.punct()?;
         (punct.as_char() == '>').as_option()?;
-        // dbg!(punct.as_char());
         Some(())
     }
 }
 
 impl Parse for HtmlElementClose {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        TagTokens::parse_end_content(input, |input, tag| {
-            let name = input.parse::<Ident>()?.to_string();
+        let punct = input.parse::<Punct>()?;
+        let lt = syn::token::Lt {
+            spans: [punct.span()],
+        };
+        (punct.to_string() == "<").as_option();
+        let s = input.parse::<Punct>()?;
+        let div = syn::token::Div { spans: [s.span()] };
+        let name = input.parse::<Ident>()?.to_string();
+        let s = input.parse::<Punct>()?;
+        let gt = syn::token::Gt { spans: [s.span()] };
 
-            // if let TagName::Expr(name) = &name {
-            //     if let Some(expr) = &name.expr {
-            //         return Err(syn::Error::new_spanned(
-            //         expr,
-            //         "dynamic closing tags must not have a body (hint: replace it with just `</@>`)",
-            //     ));
-            //     }
-            // }
-
-            Ok(Self { tag, _name: name })
+        Ok(Self {
+            lt,
+            div,
+            name,
+            gt,
         })
     }
 }
@@ -223,32 +241,41 @@ pub struct ElementProps(Vec<TokenStream>);
 impl Parse for ElementProps {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         if input.cursor().ident().is_none() {
-            return Ok(ElementProps(vec![quote!{}]));
+            return Ok(ElementProps(vec![quote! {}]));
         }
-      
-        let key = input.parse::<Ident>()?.to_string();
-        (input.parse::<Punct>()?.to_string() == "=").as_option();
-        if HtmlBlock::peek(input.cursor()).is_some() {
-            let mut t = quote! {};
-            let block = input.parse::<HtmlBlock>()?;
-            block.to_tokens(&mut t);
-            t = block.get_real_tokens();
-            let q = quote!(( #key.to_string(), format!("{}", #t) ));
-            return Ok(ElementProps(vec![q]));
-    
-   
-        } else {
-            let value = input.parse::<Literal>()?;
-            let q = quote!(( #key.to_string(), #value.to_string()));
-            return Ok(ElementProps(vec![q]));
+        let mut arr = vec![];
+        loop {
+            let key = input.parse::<Ident>()?.to_string();
+            (input.parse::<Punct>()?.to_string() == "=").as_option();
+            if HtmlBlock::peek(input.cursor()).is_some() {
+                let mut t = quote! {};
+                let block = input.parse::<HtmlBlock>()?;
+                block.to_tokens(&mut t);
+                t = block.get_real_tokens();
+                let q = quote!(( #key.to_string(), format!("{}", #t) ));
+                arr.push(q);
+            } else {
+                let value = input.parse::<Literal>()?;
+                let q = quote!(( #key.to_string(), #value.to_string()));
+                arr.push(q);
+            }
+            if let Some((punct, cursor)) = input.cursor().punct() {
+                if (punct.as_char() == '/') {
+                    break;
+                }
+                if (punct.as_char() == '>') {
+                    break;
+                }
+            }
         }
+        Ok(ElementProps(arr))
     }
 }
 
 impl ToTokens for ElementProps {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let children = self.0.iter();
-  
+
         tokens.extend(quote! {
             vec![
                 #(

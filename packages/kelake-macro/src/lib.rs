@@ -10,8 +10,7 @@
 //     }
 // }
 mod html_element;
-mod react; 
-mod tag;
+mod react;
 
 
 use proc_macro::TokenStream;
