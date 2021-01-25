@@ -28,9 +28,12 @@ fn render_vnode(vnode: VNodeChild) -> Option<Node> {
 
         VNodeChild::Node(node) => {
             let element = document.create_element(&node.name).unwrap();
+            for (key, value) in node.props {
+                element.set_attribute(&key, &value);
+            }
             for x in node.children {
                 let html_node = render_vnode(x).unwrap();
-                // for (key, value) in x.
+               
                 element.append_child(&html_node);
             }
             // element.set_inner_html("Hello from Rust!!!");

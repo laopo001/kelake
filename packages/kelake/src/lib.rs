@@ -5,12 +5,12 @@ pub mod vnode;
 // pub mod render;
 use serde_json::{json, Value};
 
-use vnode::ToVNodeChild;
+use vnode::{ToVNodeChild,VNodeChild};
 #[macro_export]
 macro_rules! to_vnode_child_vec {
     ($($child: expr),*) => {
         {
-            let mut arr = Vec::new();
+            let mut arr = Vec::<VNodeChild>::new();
             $(
                 arr.push(ToVNodeChild::to($child));
             )*
