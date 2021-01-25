@@ -5,9 +5,9 @@ use std::any::Any;
 use std::convert::From;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VNode {
-    name: String,
-    props: Vec<(String, String)>,
-    children: Vec<VNodeChild>,
+    pub name: String,
+    pub props: Vec<(String, String)>,
+    pub children: Vec<VNodeChild>,
 }
 impl VNode {
     pub fn new<T: IntoIterator<Item = impl ToVNodeChild>>(

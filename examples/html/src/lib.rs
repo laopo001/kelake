@@ -12,6 +12,6 @@ pub fn start() -> Result<(), JsValue> {
     let document: web_sys::Document = window.document().expect("should have a document on window");
     let body = document.body().expect("document should have a body");
  
-    render(body.into());
+    render(react!(<div>rust<button>hello</button></div>),body.into());
     Ok(())
 }

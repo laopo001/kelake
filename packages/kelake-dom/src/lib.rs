@@ -1,19 +1,56 @@
 #![allow(unused)]
+#[macro_use]
+extern crate lazy_static;
 use kelake::vnode::{format, Component, ToVNodeChild, VNode, VNodeChild};
 use wasm_bindgen::prelude::*;
-pub fn render(element: web_sys::Element) -> Result<(), JsValue> {
-    // Use `web_sys`'s global `window` function to get a handle on the global
-    // window object.
+use web_sys::{Document, Element, Node, Text, Window};
+
+pub fn render(vnode: VNodeChild, element: Element) -> Result<(), JsValue> {
     let window = web_sys::window().expect("no global `window` exists");
+    let document: Document = window.document().expect("should have a document on window");
 
-    let document: web_sys::Document = window.document().expect("should have a document on window");
+    let child = render_vnode(vnode).expect("error");
 
-    // let body = document.body().expect("document should have a body");
-
-    // Manufacture the element we're gonna append
-    let val = document.create_element("p").unwrap();
-    val.set_inner_html("Hello from Rust!!!");
-
-    element.append_child(&val).unwrap();
+    element.append_child(&child).unwrap();
     Ok(())
+}
+
+
+
+fn render_vnode(vnode: VNodeChild) -> Option<Node> {
+    let window = web_sys::window().expect("no global `window` exists");
+    let document = window.document().expect("should have a document on window");
+
+    match vnode {
+        VNodeChild::Text(string) => {
+            return Some(document.create_text_node(&string).into());
+        }
+
+        VNodeChild::Node(node) => {
+            let element = document.create_element(&node.name).unwrap();
+            for x in node.children {
+                let html_node = render_vnode(x).unwrap();
+                // for (key, value) in x.
+                element.append_child(&html_node);
+            }
+            // element.set_inner_html("Hello from Rust!!!");
+
+            return Some(element.into());
+        }
+        VNodeChild::NodeList(nodes) => {
+            unimplemented!();
+        //    for x in nodes {
+        //     let html_node = render_vnode(x).unwrap();
+        //     match html_node {
+        //         HtmlNode::Text(text) => {
+        //             element.append_child(&text.into());
+        //         }
+        //         HtmlNode::Element(e) => {
+        //             element.append_child(&e.into());
+        //         }
+        //     }
+        //    }
+        }
+    }
+    return None;
 }
