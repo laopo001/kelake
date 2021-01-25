@@ -1,0 +1,1 @@
+import('./pkg/html').catch(e => console.error("Error importing index.js:", e));

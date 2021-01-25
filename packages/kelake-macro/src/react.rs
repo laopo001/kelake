@@ -3,7 +3,7 @@ use crate::react;
 use crate::PeekValue;
 use proc_macro2::{Delimiter, Group, Ident, Literal, Punct, Span, TokenStream, TokenTree};
 use quote::{quote, quote_spanned, ToTokens};
-use regex::Regex;
+// use regex::Regex;
 use syn::spanned::Spanned;
 use syn::{
     braced,

@@ -1,28 +1,8 @@
 #![allow(unused)]
-#![feature(core_intrinsics)]
-// #[macro_use]
-// extern crate kelake;
 use kelake::vnode::{format, Component, ToVNodeChild, VNode, VNodeChild};
 use kelake_macro::react;
 use serde_json::{json, Value};
-// trait TypeName {
-//     fn process(&self) -> String;
-// }
 
-// impl TypeName for f32 {
-//     fn process(&self) -> String { "f32".to_string() }
-// }
-
-// impl TypeName for i64 {
-//     fn process(&self) -> String { "i64".to_string() }
-// }
-
-// macro_rules! get_type {
-//     ($e:expr) => { TypeName::process(&$e) };
-// }
-fn type_name<T>(_: T) -> String {
-    unsafe { std::intrinsics::type_name::<T>().to_string() }
-}
 
 struct Select {
     s: i32,
