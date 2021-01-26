@@ -1,8 +1,7 @@
 #![allow(unused)]
 use kelake::vnode::{format, Component, ToVNodeChild, VNode, VNodeChild};
 use kelake_macro::react;
-use serde_json::{json, Value};
-
+// use serde_json::{json, Value};
 
 struct Select {
     s: i32,
@@ -28,6 +27,11 @@ impl ToVNodeChild for Select {
 }
 
 fn main() {
+    // let a = Select {
+    //     props: SelectProps { age: 1 },
+    //     s: 1,
+    // };
+    // let s = a.render;
     // let a:Vec<impl ToVNodeChild> = vec![]
     // a.push("value");
     // a.push(1);
@@ -42,9 +46,10 @@ fn main() {
     // dbg!(type_name(&react!(<div>{a}</div>)));
     // let a = vec![ react!(<Select age={9999}></Select>) ] ;
     let a = react!(<Select age={9999}></Select>);
+    let b = "1";
     // dbg!(to_vnode_child_vec!(a));
     dbg!(react! {
-        <div>123<div>qwr{ "asdf" }{a}</div>123</div>
+        <div onClick="">123<div>qwr{ "asdf" }{a}</div>123</div>
     });
 
     // let a = "asdf";

@@ -3,7 +3,7 @@ use crate::PeekValue;
 use boolinator::Boolinator;
 use proc_macro2::{Ident, Literal, Punct, Span, TokenStream, TokenTree};
 use quote::{quote, ToTokens};
-use serde_json::{json, Value};
+// use serde_json::{json, Value};
 use syn::buffer::Cursor;
 use syn::{
     parse::{Parse, ParseBuffer, ParseStream, Result},
@@ -53,11 +53,9 @@ impl Parse for HtmlElement {
 
         // let open_key = open.name.get_key();
         let mut children = HtmlElementChildren::new();
-        // let mut count = 1;
         let mut a = 1;
 
         loop {
-            dbg!(input.to_string());
             if input.is_empty() {
                 return Err(syn::Error::new_spanned(open.to_spanned(), "没有关闭标签"));
             }
@@ -278,7 +276,7 @@ impl Parse for ElementProps {
                 let block = input.parse::<HtmlBlock>()?;
                 block.to_tokens(&mut t);
                 t = block.get_real_tokens();
-                let q = quote!(( #key.to_string(), format!("{}", #t) ));
+                let q = quote!(( #key.to_string(), format!("{:?}", #t) ));
                 arr.push(q);
             } else {
                 let value = input.parse::<Literal>()?;

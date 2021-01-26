@@ -1,12 +1,14 @@
-#[macro_use]
-use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use std::any::Any;
+use std::collections::HashMap;
 use std::convert::From;
-#[derive(Debug, Clone, Serialize, Deserialize)]
+use std::rc::Rc;
+
+type Task = Rc<dyn FnMut()>;
+#[derive(Clone)]
 pub struct VNode {
     pub name: String,
     pub props: Vec<(String, String)>,
+    // pub listeners: HashMap<String, Task>,
     pub children: Vec<VNodeChild>,
 }
 impl VNode {
@@ -18,12 +20,23 @@ impl VNode {
         VNode {
             name,
             props,
+            // listeners: HashMap::new(),
             children: children.into_iter().map(|x| (x).to()).collect(),
         }
     }
 }
+impl std::fmt::Debug for VNode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("VNode")
+            .field("name", &self.name)
+            .field("props", &self.props)
+            // .field("listeners", &"listeners".to_string())
+            .field("children", &self.children)
+            .finish()
+    }
+}
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone)]
 pub enum VNodeChild {
     Text(String),
     Node(VNode),
