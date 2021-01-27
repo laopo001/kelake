@@ -100,12 +100,14 @@ impl ToTokens for HtmlElement {
             let name_ident = Ident::new(&name, Span::call_site());
             let props_ident = Ident::new(&(name + "Props"), Span::call_site());
             props_t.extend(quote!(#props_ident));
-            self.component_props.as_ref().unwrap().to_tokens(&mut props_t);
- 
+            self.component_props
+                .as_ref()
+                .unwrap()
+                .to_tokens(&mut props_t);
+
             tokens.extend(quote! {
                 #name_ident::create(#props_t,  #t)
             });
-     
         } else {
             self.element_props.as_ref().unwrap().to_tokens(&mut props_t);
             tokens.extend(quote! {
@@ -265,7 +267,7 @@ pub struct ElementProps(Vec<TokenStream>);
 impl Parse for ElementProps {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         if input.cursor().ident().is_none() {
-            return Ok(ElementProps(vec![quote! {}]));
+            return Ok(ElementProps(vec![]));
         }
         let mut arr = vec![];
         loop {
@@ -276,11 +278,16 @@ impl Parse for ElementProps {
                 let block = input.parse::<HtmlBlock>()?;
                 block.to_tokens(&mut t);
                 t = block.get_real_tokens();
-                let q = quote!(( #key.to_string(), format!("{:?}", #t) ));
-                arr.push(q);
+                if key.starts_with("on") {
+                    let q = quote!(( #key.to_string(), PropsValue::Task(std::rc::Rc::new(#t)) ));
+                    arr.push(q);
+                } else {
+                    let q = quote!(( #key.to_string(), format!("{:?}", #t) ));
+                    arr.push(q);
+                }
             } else {
                 let value = input.parse::<Literal>()?;
-                let q = quote!(( #key.to_string(), #value.to_string()));
+                let q = quote!(( #key.to_string(), PropsValue::String(#value.to_string())));
                 arr.push(q);
             }
             if let Some((punct, cursor)) = input.cursor().punct() {
@@ -300,13 +307,15 @@ impl ToTokens for ElementProps {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let children = self.0.iter();
 
-        tokens.extend(quote! {
-            vec![
+        tokens.extend(quote! {{
+            let mut m = ::std::collections::HashMap::<String,PropsValue>::new();
+
                 #(
-                    #children
+                    m.insert#children;
                 ),*
-            ]
-        });
+
+            m
+        }});
     }
 }
 

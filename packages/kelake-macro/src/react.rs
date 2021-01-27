@@ -25,7 +25,7 @@ impl ToTokens for HtmlRootVNode {
 
         tokens.extend(quote! {
             {
-                use kelake::vnode::{VNode, VNodeChild, format};
+                use kelake::vnode::{VNode, VNodeChild, format, PropsValue};
                 use kelake::to_vnode_child_vec;
                 #t
             }

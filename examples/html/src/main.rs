@@ -27,6 +27,8 @@ impl ToVNodeChild for Select {
 }
 
 fn main() {
+
+
     // let a = Select {
     //     props: SelectProps { age: 1 },
     //     s: 1,
@@ -49,7 +51,7 @@ fn main() {
     let b = "1";
     // dbg!(to_vnode_child_vec!(a));
     dbg!(react! {
-        <div onClick="">123<div>qwr{ "asdf" }{a}</div>123</div>
+        <div >123<div>qwr{ "asdf" }{a}</div>123</div>
     });
 
     // let a = "asdf";

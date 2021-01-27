@@ -3,40 +3,52 @@ use std::collections::HashMap;
 use std::convert::From;
 use std::rc::Rc;
 
-type Task = Rc<dyn FnMut()>;
-#[derive(Clone)]
+pub type Task = Rc<dyn FnMut()>;
+
+pub enum PropsValue {
+    String(String),
+    Task(Task),
+}
+
+impl std::fmt::Debug for PropsValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_tuple("PropsValue")
+            .field({
+                match self {
+                    PropsValue::String(string) => string,
+                    PropsValue::Task(task) => &stringify!(task),
+                }
+            })
+            .finish()
+    }
+}
+
+#[derive(Debug)]
 pub struct VNode {
     pub name: String,
-    pub props: Vec<(String, String)>,
-    // pub listeners: HashMap<String, Task>,
+    pub props: HashMap<String, PropsValue>,
+    pub parent: *const VNode,
     pub children: Vec<VNodeChild>,
 }
 impl VNode {
     pub fn new<T: IntoIterator<Item = impl ToVNodeChild>>(
         name: String,
-        props: Vec<(String, String)>,
+        props: HashMap<String, PropsValue>,
         children: T,
     ) -> Self {
         VNode {
             name,
             props,
-            // listeners: HashMap::new(),
+            parent: std::ptr::null(),
             children: children.into_iter().map(|x| (x).to()).collect(),
         }
     }
-}
-impl std::fmt::Debug for VNode {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("VNode")
-            .field("name", &self.name)
-            .field("props", &self.props)
-            // .field("listeners", &"listeners".to_string())
-            .field("children", &self.children)
-            .finish()
+    pub fn set_parent(&mut self, p: *const VNode) {
+        self.parent = p;
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub enum VNodeChild {
     Text(String),
     Node(VNode),

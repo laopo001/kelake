@@ -4,6 +4,7 @@ use kelake_dom::render;
 use kelake_macro::react;
 // use serde_json::{json, Value};
 use wasm_bindgen::prelude::*;
+use js_sys::Function;
 
 struct Select {
     s: i32,
@@ -65,9 +66,11 @@ pub fn start2() -> Result<(), JsValue> {
     let document: web_sys::Document = window.document().expect("should have a document on window");
     let body = document.body().expect("document should have a body");
 
+    document.add_event_listener_with_callback("click", &Function::new_with_args("e"," console.log(e) "));
+
     render(react!(
         <div>
-            <button onclick={|e|{
+            <button onClick={||{
                 
             }}>button</button>
         </div>
