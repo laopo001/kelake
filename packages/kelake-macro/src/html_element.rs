@@ -4,6 +4,7 @@ use boolinator::Boolinator;
 use proc_macro2::{Ident, Literal, Punct, Span, TokenStream, TokenTree};
 use quote::{quote, ToTokens};
 // use serde_json::{json, Value};
+
 use syn::buffer::Cursor;
 use syn::{
     parse::{Parse, ParseBuffer, ParseStream, Result},
@@ -279,7 +280,7 @@ impl Parse for ElementProps {
                 block.to_tokens(&mut t);
                 t = block.get_real_tokens();
                 if key.starts_with("on") {
-                    let q = quote!(( #key.to_string(), PropsValue::Task(std::rc::Rc::new(#t)) ));
+                    let q = quote!(( #key.to_string(), PropsValue::Task(Arc::new(Mutex::new(#t))) ));
                     arr.push(q);
                 } else {
                     let q = quote!(( #key.to_string(), format!("{:?}", #t) ));

@@ -21,7 +21,7 @@ impl Component<SelectProps> for Select {
 }
 
 impl ToVNodeChild for Select {
-    fn to(self) -> VNodeChild {
+    fn to(&self) -> VNodeChild {
         self.render()
     }
 }

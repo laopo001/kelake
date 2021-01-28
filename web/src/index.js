@@ -1,3 +1,3 @@
 import('./pkg/html').then(m=>{
-    window.my_function = m.my_function;
+    window.call_task = m.call_task;
 }).catch(e => console.error("Error importing index.js:", e));

@@ -27,6 +27,7 @@ impl ToTokens for HtmlRootVNode {
             {
                 use kelake::vnode::{VNode, VNodeChild, format, PropsValue};
                 use kelake::to_vnode_child_vec;
+                use std::sync::{Arc, Mutex};
                 #t
             }
         });

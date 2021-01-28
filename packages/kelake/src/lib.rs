@@ -11,7 +11,7 @@ macro_rules! to_vnode_child_vec {
         {
             let mut arr = Vec::<VNodeChild>::new();
             $(
-                arr.push(ToVNodeChild::to($child));
+                arr.push($child.to());
             )*
             arr
         }

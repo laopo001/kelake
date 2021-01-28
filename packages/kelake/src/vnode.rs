@@ -1,10 +1,12 @@
 use std::any::Any;
 use std::collections::HashMap;
 use std::convert::From;
+use std::sync::{Arc, Mutex};
 use std::rc::Rc;
+pub type Task = Arc<Mutex<dyn FnMut() + Send>>;
+// pub type Task = Rc<dyn FnMut()>;
 
-pub type Task = Rc<dyn FnMut()>;
-
+#[derive(Clone)]
 pub enum PropsValue {
     String(String),
     Task(Task),
@@ -23,7 +25,7 @@ impl std::fmt::Debug for PropsValue {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub struct VNode {
     pub name: String,
     pub props: HashMap<String, PropsValue>,
@@ -48,7 +50,7 @@ impl VNode {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug,Clone)]
 pub enum VNodeChild {
     Text(String),
     Node(VNode),
@@ -86,14 +88,14 @@ pub trait Component<T> {
 // }
 
 pub trait ToVNodeChild {
-    fn to(self) -> VNodeChild;
+    fn to(&self) -> VNodeChild;
 }
 
 macro_rules! tov {
     ( ($t:tt) ) => {
         impl ToVNodeChild for $t {
-            fn to(self) -> VNodeChild {
-                VNodeChild::Text(format!("{}", self))
+            fn to(&self) -> VNodeChild {
+                VNodeChild::Text(format!("{}", *self))
             }
         }
     };
@@ -111,20 +113,20 @@ tov!((bool));
 // impl ToVNodeChild for f64 {}
 // impl ToVNodeChild for String {}
 impl ToVNodeChild for &str {
-    fn to(self) -> VNodeChild {
+    fn to(&self) -> VNodeChild {
         VNodeChild::Text(format!("{}", self))
     }
 }
 
 impl ToVNodeChild for VNodeChild {
-    fn to(self) -> VNodeChild {
-        unsafe { self }
+    fn to(&self) -> VNodeChild {
+        unsafe { self.clone() }
     }
 }
 
 impl ToVNodeChild for Vec<VNodeChild> {
-    fn to(self) -> VNodeChild {
-        VNodeChild::NodeList(unsafe { self })
+    fn to(&self) -> VNodeChild {
+        VNodeChild::NodeList(unsafe { self.clone() })
     }
 }
 
