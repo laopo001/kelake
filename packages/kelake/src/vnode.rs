@@ -1,8 +1,8 @@
 use std::any::Any;
 use std::collections::HashMap;
 use std::convert::From;
-use std::sync::{Arc, Mutex};
 use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 pub type Task = Arc<Mutex<dyn FnMut() + Send>>;
 // pub type Task = Rc<dyn FnMut()>;
 
@@ -25,7 +25,7 @@ impl std::fmt::Debug for PropsValue {
     }
 }
 
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub struct VNode {
     pub name: String,
     pub props: HashMap<String, PropsValue>,
@@ -50,7 +50,7 @@ impl VNode {
     }
 }
 
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub enum VNodeChild {
     Text(String),
     Node(VNode),
@@ -59,6 +59,7 @@ pub enum VNodeChild {
 
 pub trait Component<T> {
     fn create(props: T, children: Vec<VNodeChild>) -> Self;
+    fn update<K>(&mut self, event: K);
     fn render(&self) -> VNodeChild;
 }
 

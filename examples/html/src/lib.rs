@@ -6,23 +6,37 @@ use kelake_macro::react;
 use js_sys::Function;
 use wasm_bindgen::prelude::*;
 use web_sys::{console, Document, Element, Node, Text, Window};
-
+#[derive(Copy,Clone)]
 struct Select {
     s: i32,
     props: SelectProps,
 }
+#[derive(Copy,Clone)]
 struct SelectProps {
     age: i32,
 }
+
+enum SelectEvent {
+    CLICK
+}
+
+unsafe impl Send for Select {}
 
 impl Component<SelectProps> for Select {
     fn create(props: SelectProps, c: Vec<VNodeChild>) -> Self {
         return Self { s: 1, props };
     }
+    fn update<SelectEvent>(&mut self, event: SelectEvent) {
+        // match event {
+        //     SelectEvent::CLICK => {
+        //         panic!("123")
+        //     }
+        // }
+    }
     fn render(&self) -> VNodeChild {
         unsafe {
-            // let x = std::mem::transmute::<&mut Select, *mut Select>(self);
-            return react!(<div onClick={|| unsafe {
+            let x = std::mem::transmute::<&Select, *mut Select>(self);
+            return react!(<div onClick={move || {
                 // (*x).s = 3;
                 console::log_1(&JsValue::from_str("string"));
             }}>{self.props.age}</div>);
@@ -33,14 +47,13 @@ impl Component<SelectProps> for Select {
 impl ToVNodeChild for Select {
     fn to(&self) -> VNodeChild {
         unsafe {
-            let x = std::mem::transmute::<*const Select, &mut Select>(self);
-            Select::render(x)
+            // let x = std::mem::transmute::<*const Select, &mut Select>(self);
+            Select::render(self)
         }
     }
 }
 
 pub fn start1() -> Result<(), JsValue> {
-    let x = 1.to();
     let window = web_sys::window().expect("no global `window` exists");
 
     let document: web_sys::Document = window.document().expect("should have a document on window");
