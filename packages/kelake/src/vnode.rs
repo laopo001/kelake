@@ -57,9 +57,10 @@ pub enum VNodeChild {
     NodeList(Vec<VNodeChild>),
 }
 
-pub trait Component<T> {
+pub trait Component<T>: Sized + 'static {
+    type Message: 'static;
     fn create(props: T, children: Vec<VNodeChild>) -> Self;
-    fn update<K>(&mut self, event: K);
+    fn update(&mut self, event: Self::Message);
     fn render(&self) -> VNodeChild;
 }
 

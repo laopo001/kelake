@@ -6,32 +6,36 @@ use kelake_macro::react;
 use js_sys::Function;
 use wasm_bindgen::prelude::*;
 use web_sys::{console, Document, Element, Node, Text, Window};
-#[derive(Copy,Clone)]
+#[derive(Copy, Clone)]
 struct Select {
     s: i32,
     props: SelectProps,
 }
-#[derive(Copy,Clone)]
+#[derive(Copy, Clone)]
 struct SelectProps {
     age: i32,
 }
 
 enum SelectEvent {
-    CLICK
+    Connect,
 }
 
 unsafe impl Send for Select {}
 
 impl Component<SelectProps> for Select {
+    type Message = SelectEvent;
     fn create(props: SelectProps, c: Vec<VNodeChild>) -> Self {
         return Self { s: 1, props };
     }
-    fn update<SelectEvent>(&mut self, event: SelectEvent) {
-        // match event {
-        //     SelectEvent::CLICK => {
-        //         panic!("123")
-        //     }
-        // }
+    fn update(&mut self, event: Self::Message) {
+        match event {
+            SelectEvent::Connect => {
+                panic!("123")
+            }
+            _ => {
+                panic!("123")
+            }
+        }
     }
     fn render(&self) -> VNodeChild {
         unsafe {
