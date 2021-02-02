@@ -88,17 +88,9 @@ fn render_vnode(mut vnode: VNodeChild) -> Option<Node> {
         },
         VNodeChild::NodeList(nodes) => {
             unimplemented!();
-            //    for x in nodes {
-            //     let html_node = render_vnode(x).unwrap();
-            //     match html_node {
-            //         HtmlNode::Text(text) => {
-            //             element.append_child(&text.into());
-            //         }
-            //         HtmlNode::Element(e) => {
-            //             element.append_child(&e.into());
-            //         }
-            //     }
-            //    }
+        },
+        VNodeChild::Component(node) => {
+           return render_vnode(node.render());
         }
     }
     return None;

@@ -11,17 +11,17 @@ struct SelectProps {
     age: i32,
 }
 
-impl Component<SelectProps> for Select {
+impl Component for Select {
+
+    type Props = SelectProps;
     fn create(props: SelectProps, c: Vec<VNodeChild>) -> Self {
         return Self { s: 1, props };
     }
-    fn render(&self) -> VNodeChild {
-        return react!(<div>{self.props.age}</div>);
-    }
+
 }
 
 impl ToVNodeChild for Select {
-    fn to(&self) -> VNodeChild {
+    fn to(self) -> VNodeChild {
         self.render()
     }
 }
