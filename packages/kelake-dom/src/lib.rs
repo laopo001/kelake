@@ -3,7 +3,9 @@
 extern crate lazy_static;
 use console::log_1;
 use js_sys::Function;
-use kelake::vnode::{format, Component, ComponentUpdate, PropsValue, Task, ToVNodeChild, VNode, VNodeChild};
+use kelake::vnode::{
+    format, Component, ComponentUpdate, PropsValue, Task, ToVNodeChild, VNode, VNodeChild,
+};
 use rand::Rng;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -26,9 +28,7 @@ pub fn call_task(task_id: usize, string: &str) {
         // console::log_1(&JsValue::from_f64(task_id as f64));
         // console::log_1(&JsValue::from_str(string));
 
-      
         if let Some((string, this)) = ARRAY.get_mut(task_id).expect("error").get_mut(string) {
-           
             this.update(string.to_string());
         }
     }
@@ -95,10 +95,12 @@ fn render_vnode(mut vnode: VNodeChild) -> Option<Node> {
         },
         VNodeChild::NodeList(nodes) => {
             unimplemented!();
-        },
+        }
         VNodeChild::Component(node) => {
-           return render_vnode(node.render());
+            return render_vnode(node.render());
         }
     }
     return None;
 }
+
+fn diff(vnode: VNodeChild, pre_vnode: VNodeChild, mut html_node: Node) {}
