@@ -8,12 +8,12 @@ use js_sys::Function;
 use std::io::Write;
 use wasm_bindgen::prelude::*;
 use web_sys::{console, Document, Element, Node, Text, Window};
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug,  Clone)]
 struct Select {
     s: i32,
     props: SelectProps,
 }
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug,  Clone)]
 struct SelectProps {
     age: i32,
 }
@@ -36,6 +36,10 @@ impl ComponentUpdate for Select {
                 self.s += 123;
                 console::log_1(&JsValue::from_f64(self.s as f64));
             }
+            if event == "456" {
+                self.s += 123;
+                console::log_1(&JsValue::from_f64(self.s as f64));
+            }
         }
     }
     fn render(&self) -> VNodeChild {
@@ -45,11 +49,14 @@ impl ComponentUpdate for Select {
             // let mut b =  self.clone();
             // let z = &mut b;
             // z.write(c).unwrap();
-            return react!(<div onClick={
+            return react!(<div><button onClick={
                 // console::log_1(&JsValue::from_str("string"));
                 // c.update("electEvent::Connect".to_string());
                 "123"
-            }>{self.props.age}</div>);
+            }>{self.props.age}</button>
+            <button onClick={
+                "456"
+            }>456</button></div>);
         }
     }
 }
