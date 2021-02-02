@@ -38,10 +38,10 @@ impl ComponentUpdate for Select {
             // let mut b =  self.clone();
             // let z = &mut b;
             // z.write(c).unwrap();
-            return react!(<div onClick={move || {
-                console::log_1(&JsValue::from_str("string"));
-                c.update("electEvent::Connect".to_string());
-                
+            return react!(<div onClick={{
+                // console::log_1(&JsValue::from_str("string"));
+                // c.update("electEvent::Connect".to_string());
+                ("123".to_string(),Box::new(self.clone()))
             }}>{self.props.age}</div>);
         }
     }
