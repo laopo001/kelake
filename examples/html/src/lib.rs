@@ -1,12 +1,13 @@
 #![allow(unused)]
+use console::log_1;
 use kelake::vnode::{format, Component, ComponentUpdate, ToVNodeChild, VNode, VNodeChild};
 use kelake_dom::render;
 use kelake_macro::react;
 // use serde_json::{json, Value};
 use js_sys::Function;
+use std::io::Write;
 use wasm_bindgen::prelude::*;
 use web_sys::{console, Document, Element, Node, Text, Window};
-use std::io::Write;
 #[derive(Debug, Copy, Clone)]
 struct Select {
     s: i32,
@@ -29,7 +30,13 @@ impl Component for Select {
 }
 impl ComponentUpdate for Select {
     fn update(&mut self, event: String) {
-       
+        unsafe {
+            console::log_1(&JsValue::from_str(&event));
+            if event == "123" {
+                self.s += 123;
+                console::log_1(&JsValue::from_f64(self.s as f64));
+            }
+        }
     }
     fn render(&self) -> VNodeChild {
         unsafe {
@@ -38,11 +45,11 @@ impl ComponentUpdate for Select {
             // let mut b =  self.clone();
             // let z = &mut b;
             // z.write(c).unwrap();
-            return react!(<div onClick={{
+            return react!(<div onClick={
                 // console::log_1(&JsValue::from_str("string"));
                 // c.update("electEvent::Connect".to_string());
-                ("123".to_string(),Box::new(self.clone()))
-            }}>{self.props.age}</div>);
+                "123"
+            }>{self.props.age}</div>);
         }
     }
 }
@@ -64,12 +71,15 @@ pub fn start1() -> Result<(), JsValue> {
     let body = document.body().expect("document should have a body");
 
     let a = react!(<Select age={9999}></Select>);
-    render(react!(
-        <div>
-            123<div>qwr{ "asdf" }{a}</div><a href="https://www.baidu.com/">baidu_link</a>
-            <button >button</button>
-        </div>
-    ),body.into());
+    render(
+        react!(
+            <div>
+                123<div>qwr{ "asdf" }{a}</div><a href="https://www.baidu.com/">baidu_link</a>
+                <button >button</button>
+            </div>
+        ),
+        body.into(),
+    );
     Ok(())
 }
 
