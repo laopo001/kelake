@@ -1,0 +1,8 @@
+[workspace]
+members = [
+  "examples/html",
+
+  "packages/kelake",
+  "packages/kelake-macro",
+  "packages/kelake-dom",
+]

@@ -1,0 +1,19 @@
+[package]
+authors = ["laopo001 <353272497@qq.com>"]
+edition = "2018"
+name = "kelake-macro"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+proc-macro = true
+
+[dependencies]
+boolinator = "2.4.0"
+proc-macro2 = "1.0"
+quote = "1.0"
+# regex = "1"
+syn = {version = "1.0", features = ["full", "extra-traits"]}
+# serde_json = "1.0.61"
+impls = "1.0.3"
