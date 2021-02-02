@@ -10,9 +10,11 @@ use std::sync::Mutex;
 use wasm_bindgen::prelude::*;
 use web_sys::{console, Document, Element, Node, Text, Window};
 
-lazy_static! {
-    static ref ARRAY: Mutex<Vec<HashMap<String, Task>>> = Mutex::new(vec![]);
-}
+// lazy_static! {
+//     static ref ARRAY: Mutex<Vec<HashMap<String, Task>>> = Mutex::new(vec![]);
+// }
+
+static mut ARRAY: Vec<HashMap<String, Task>> = vec![];
 
 #[wasm_bindgen]
 pub fn call_task(task_id: usize, string: &str) {
@@ -20,9 +22,9 @@ pub fn call_task(task_id: usize, string: &str) {
         // console::log_1(&JsValue::from_f64(task_id as f64));
         // console::log_1(&JsValue::from_str(string));
 
-        let mut mut_arr = ARRAY.lock().expect("error");
-        if let Some(f) = mut_arr.get(task_id).expect("error").get(string) {
-            f.lock().expect("error")();
+   
+        if let Some(f) = ARRAY.get_mut(task_id).expect("error").get_mut(string) {
+            f();
         }
     }
 }
@@ -61,11 +63,11 @@ fn render_vnode(mut vnode: VNodeChild) -> Option<Node> {
                     PropsValue::Task(x) => {
                         // let mut rng = rand::thread_rng();
                         // console::log_1(&JsValue::from_str(&format!("i32: {}, u32: {}", rng.gen::<i32>(), rng.gen::<u32>())));
-                        let mut mut_arr = ARRAY.lock().expect("error");
+                        // let mut mut_arr = ARRAY.lock().expect("error");
                         let mut map: HashMap<String, Task> = HashMap::new();
                         map.insert(key.to_string(), x);
-                        mut_arr.push(map);
-                        element.set_attribute(&key, &(mut_arr.len() - 1).to_string());
+                        ARRAY.push(map);
+                        element.set_attribute(&key, &(ARRAY.len() - 1).to_string());
                     }
                     _ => {}
                 }

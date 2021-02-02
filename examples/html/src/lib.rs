@@ -33,11 +33,11 @@ impl Component<SelectProps> for Select {
         //     }
         // }
     }
-    fn render(&self) -> VNodeChild {
+    fn render(&mut self) -> VNodeChild {
         unsafe {
-            let x = std::mem::transmute::<&Select, *mut Select>(self);
-            return react!(<div onClick={move || {
-                // (*x).s = 3;
+            // let x = std::mem::transmute::<&Select, *mut Select>(self);
+            return react!(<div onClick={ || {
+                self.s = 3;
                 console::log_1(&JsValue::from_str("string"));
             }}>{self.props.age}</div>);
         }
@@ -45,10 +45,10 @@ impl Component<SelectProps> for Select {
 }
 
 impl ToVNodeChild for Select {
-    fn to(&self) -> VNodeChild {
+    fn to(self) -> VNodeChild {
         unsafe {
             // let x = std::mem::transmute::<*const Select, &mut Select>(self);
-            Select::render(self)
+            Select::render(&self)
         }
     }
 }

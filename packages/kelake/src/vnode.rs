@@ -3,10 +3,10 @@ use std::collections::HashMap;
 use std::convert::From;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
-pub type Task = Arc<Mutex<dyn FnMut() + Send>>;
+pub type Task = Box<dyn FnMut()>;
 // pub type Task = Rc<dyn FnMut()>;
 
-#[derive(Clone)]
+#[derive()]
 pub enum PropsValue {
     String(String),
     Task(Task),
@@ -25,7 +25,7 @@ impl std::fmt::Debug for PropsValue {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct VNode {
     pub name: String,
     pub props: HashMap<String, PropsValue>,
@@ -50,7 +50,7 @@ impl VNode {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub enum VNodeChild {
     Text(String),
     Node(VNode),
@@ -60,7 +60,7 @@ pub enum VNodeChild {
 pub trait Component<T> {
     fn create(props: T, children: Vec<VNodeChild>) -> Self;
     fn update<K>(&mut self, event: K);
-    fn render(&self) -> VNodeChild;
+    fn render(&mut self) -> VNodeChild;
 }
 
 // fn type_name<T>(_: T) -> String {
@@ -89,14 +89,14 @@ pub trait Component<T> {
 // }
 
 pub trait ToVNodeChild {
-    fn to(&self) -> VNodeChild;
+    fn to(self) -> VNodeChild;
 }
 
 macro_rules! tov {
     ( ($t:tt) ) => {
         impl ToVNodeChild for $t {
-            fn to(&self) -> VNodeChild {
-                VNodeChild::Text(format!("{}", *self))
+            fn to(self) -> VNodeChild {
+                VNodeChild::Text(format!("{}", self))
             }
         }
     };
@@ -114,20 +114,20 @@ tov!((bool));
 // impl ToVNodeChild for f64 {}
 // impl ToVNodeChild for String {}
 impl ToVNodeChild for &str {
-    fn to(&self) -> VNodeChild {
+    fn to(self) -> VNodeChild {
         VNodeChild::Text(format!("{}", self))
     }
 }
 
 impl ToVNodeChild for VNodeChild {
-    fn to(&self) -> VNodeChild {
-        unsafe { self.clone() }
+    fn to(self) -> VNodeChild {
+        unsafe { self }
     }
 }
 
 impl ToVNodeChild for Vec<VNodeChild> {
-    fn to(&self) -> VNodeChild {
-        VNodeChild::NodeList(unsafe { self.clone() })
+    fn to(self) -> VNodeChild {
+        VNodeChild::NodeList(unsafe { self })
     }
 }
 
