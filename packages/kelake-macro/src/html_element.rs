@@ -280,7 +280,7 @@ impl Parse for ElementProps {
                 block.to_tokens(&mut t);
                 t = block.get_real_tokens();
                 if key.starts_with("on") {
-                    let q = quote!(( #key.to_string(), PropsValue::Task(Arc::new(Mutex::new(#t))) ));
+                    let q = quote!(( #key.to_string(), PropsValue::Task( (#t, Box::new(self.clone())) ) ));
                     arr.push(q);
                 } else {
                     let q = quote!(( #key.to_string(), format!("{:?}", #t) ));

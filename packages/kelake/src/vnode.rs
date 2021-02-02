@@ -3,10 +3,10 @@ use std::collections::HashMap;
 use std::convert::From;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
-pub type Task = Arc<Mutex<dyn FnMut() + Send>>;
+pub type Task = (String,Box<dyn ComponentUpdate>);
 // pub type Task = Rc<dyn FnMut()>;
 
-#[derive(Clone)]
+#[derive()]
 pub enum PropsValue {
     String(String),
     Task(Task),
