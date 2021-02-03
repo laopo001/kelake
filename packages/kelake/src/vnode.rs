@@ -3,7 +3,9 @@ use std::collections::HashMap;
 use std::convert::From;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
-pub type Task = (String,Box<dyn ComponentUpdate>);
+use web_sys::Node;
+
+pub type Task = (String, Box<dyn ComponentUpdate>);
 // pub type Task = Rc<dyn FnMut()>;
 
 #[derive()]
@@ -31,6 +33,7 @@ pub struct VNode {
     pub props: HashMap<String, PropsValue>,
     pub parent: *const VNode,
     pub children: Vec<VNodeChild>,
+    pub html_node: Option<Node>,
 }
 impl VNode {
     pub fn new<T: IntoIterator<Item = impl ToVNodeChild>>(
@@ -43,6 +46,7 @@ impl VNode {
             props,
             parent: std::ptr::null(),
             children: children.into_iter().map(|x| (x).to()).collect(),
+            html_node: None,
         }
     }
     pub fn set_parent(&mut self, p: *const VNode) {
@@ -82,9 +86,14 @@ pub trait Component: Sized + 'static {
     fn create(props: Self::Props, children: Vec<VNodeChild>) -> Self;
 }
 
+pub struct ComponentData {
+    vnode: Option<VNode>,
+}
+
 pub trait ComponentUpdate: std::fmt::Debug {
     fn update(&mut self, string: String);
     fn render(&self) -> VNodeChild;
+    fn set_data(&self, data: *mut ComponentData) {}
 }
 
 // fn type_name<T>(_: T) -> String {
@@ -132,11 +141,7 @@ tov!((f32));
 tov!((f64));
 tov!((String));
 tov!((bool));
-// impl ToVNodeChild for i32 {}
-// impl ToVNodeChild for i64 {}
-// impl ToVNodeChild for f32 {}
-// impl ToVNodeChild for f64 {}
-// impl ToVNodeChild for String {}
+
 impl ToVNodeChild for &str {
     fn to(self) -> VNodeChild {
         VNodeChild::Text(format!("{}", self))

@@ -20,25 +20,23 @@ lazy_static! {
     // static ref ARRAY: Mutex<Vec<HashMap<String, Task>>> = Mutex::new(vec![]);
 
 }
-static mut ARRAY: Vec<HashMap<String, Task>> = vec![];
+static mut ARRAY: Vec<HashMap<String, Box<Task>>> = vec![];
 
 #[wasm_bindgen]
 pub fn call_task(task_id: usize, string: &str) {
     unsafe {
-        // console::log_1(&JsValue::from_f64(task_id as f64));
-        // console::log_1(&JsValue::from_str(string));
-
-        if let Some((string, this)) = ARRAY.get_mut(task_id).expect("error").get_mut(string) {
+        if let Some(x) = ARRAY.get_mut(task_id).expect("error").get_mut(string) {
+            let (string, this) = x.as_mut();
             this.update(string.to_string());
         }
     }
 }
 
-pub fn render(vnode: VNodeChild, element: Element) -> Result<(), JsValue> {
+pub fn render(mut vnode: VNodeChild, element: Element) -> Result<(), JsValue> {
     let window = web_sys::window().expect("no global `window` exists");
     let document: Document = window.document().expect("should have a document on window");
 
-    let child = render_vnode(vnode).expect("error");
+    let child = render_vnode(&mut vnode).expect("error");
 
     element.append_child(&child).unwrap();
     document.add_event_listener_with_callback(
@@ -48,7 +46,7 @@ pub fn render(vnode: VNodeChild, element: Element) -> Result<(), JsValue> {
     Ok(())
 }
 
-fn render_vnode(mut vnode: VNodeChild) -> Option<Node> {
+fn render_vnode(vnode: &mut VNodeChild) -> Option<Node> {
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("should have a document on window");
 
@@ -57,10 +55,10 @@ fn render_vnode(mut vnode: VNodeChild) -> Option<Node> {
             return Some(document.create_text_node(&string).into());
         }
 
-        VNodeChild::Node(mut node) => unsafe {
-            let ptr = &node as *const VNode;
+        VNodeChild::Node(node) => unsafe {
+            let ptr = node as *const VNode;
             let element = document.create_element(&node.name).unwrap();
-            for (key, value) in node.props {
+            for (key, value) in node.props.iter_mut() {
                 match value {
                     PropsValue::String(string) => {
                         element.set_attribute(&key, &string);
@@ -68,9 +66,11 @@ fn render_vnode(mut vnode: VNodeChild) -> Option<Node> {
                     PropsValue::Task(x) => {
                         // let mut rng = rand::thread_rng();
                         // console::log_1(&JsValue::from_str(&format!("i32: {}, u32: {}", rng.gen::<i32>(), rng.gen::<u32>())));
-                        // let mut mut_arr = ARRAY.lock().expect("error");
-                        let mut map: HashMap<String, Task> = HashMap::new();
-                        map.insert(key.to_string(), x);
+                        let mut map: HashMap<String, Box<Task>> = HashMap::new();
+                        map.insert(
+                            key.to_string(),
+                            Box::from_raw(x as *mut (String, Box<dyn ComponentUpdate>)),
+                        );
                         ARRAY.push(map);
                         element.set_attribute(&key, &(ARRAY.len() - 1).to_string());
                     }
@@ -78,8 +78,8 @@ fn render_vnode(mut vnode: VNodeChild) -> Option<Node> {
                 }
             }
 
-            for mut x in node.children {
-                match (&mut x) {
+            for x in node.children.iter_mut() {
+                match (x) {
                     VNodeChild::Node(c_node) => {
                         c_node.set_parent(ptr);
                     }
@@ -89,15 +89,13 @@ fn render_vnode(mut vnode: VNodeChild) -> Option<Node> {
 
                 element.append_child(&html_node);
             }
-            // element.set_inner_html("Hello from Rust!!!");
-
             return Some(element.into());
         },
         VNodeChild::NodeList(nodes) => {
             unimplemented!();
         }
         VNodeChild::Component(node) => {
-            return render_vnode(node.render());
+            return render_vnode(&mut node.render());
         }
     }
     return None;
