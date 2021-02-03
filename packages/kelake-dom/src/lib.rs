@@ -41,7 +41,7 @@ pub fn render(mut vnode: VNodeChild, element: Element) -> Result<(), JsValue> {
     element.append_child(&child).unwrap();
     document.add_event_listener_with_callback(
         "click",
-        &Function::new_with_args("e", " try{ call_task(e.target.attributes[ 'on' + e.type ].nodeValue, 'on' + e.type.slice(0,1).toUpperCase() + e.type.slice(1,e.type.length)); } catch {}"),
+        &Function::new_with_args("e", " try{ call_task(e.target.attributes[ 'on' + e.type ].nodeValue, 'on' + e.type.slice(0,1).toUpperCase() + e.type.slice(1,e.type.length)); } catch (e){console.error(e)}"),
     );
     Ok(())
 }
