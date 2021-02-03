@@ -20,7 +20,7 @@ lazy_static! {
     // static ref ARRAY: Mutex<Vec<HashMap<String, Task>>> = Mutex::new(vec![]);
 
 }
-static mut ARRAY: Vec<HashMap<String,*mut Task>> = vec![];
+static mut ARRAY: Vec<HashMap<String, *mut Task>> = vec![];
 
 #[wasm_bindgen]
 pub fn call_task(task_id: usize, string: &str) {
@@ -30,7 +30,9 @@ pub fn call_task(task_id: usize, string: &str) {
 
         if let Some(x) = ARRAY.get_mut(task_id).expect("error").get_mut(string) {
             console::log_1(&JsValue::from_f64(task_id as f64));
-            let (string,mut this) = std::ptr::read(*(x));
+            let (string, this) = (*(*x)).as_mut();
+            // let string = (**x).0;
+            // let this = &(*(*x)).1;
             // (*(*x)).1.update((*(*x)).0.to_string());
             // let (string, this) = **x;
             // this.deref_mut().update(string.to_string());
@@ -80,7 +82,7 @@ fn render_vnode(vnode: &mut VNodeChild) -> Option<Node> {
                         // let mut rng = rand::thread_rng();
                         // console::log_1(&JsValue::from_str(&format!("i32: {}, u32: {}", rng.gen::<i32>(), rng.gen::<u32>())));
                         // let mut mut_arr = ARRAY.lock().expect("error");
-                        let mut map: HashMap<String,*mut Task> = HashMap::new();
+                        let mut map: HashMap<String, *mut Task> = HashMap::new();
                         map.insert(key.to_string(), x);
                         ARRAY.push(map);
                         element.set_attribute(&key, &(ARRAY.len() - 1).to_string());
