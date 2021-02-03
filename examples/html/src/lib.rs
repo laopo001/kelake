@@ -8,12 +8,12 @@ use js_sys::Function;
 use std::io::Write;
 use wasm_bindgen::prelude::*;
 use web_sys::{console, Document, Element, Node, Text, Window};
-#[derive(Debug,  Clone)]
+#[derive(Debug, Copy, Clone)]
 struct Select {
     s: i32,
     props: SelectProps,
 }
-#[derive(Debug,  Clone)]
+#[derive(Debug,Copy, Clone)]
 struct SelectProps {
     age: i32,
 }

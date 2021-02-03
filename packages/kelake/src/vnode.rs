@@ -58,24 +58,6 @@ pub enum VNodeChild {
     Component(Box<dyn ComponentUpdate>),
 }
 
-// impl Clone for VNodeChild {
-//     fn clone(&self) -> Self {
-//         match self {
-//             VNodeChild::Text(r) => {
-//                 return VNodeChild::Text(r);
-//             },
-//             VNodeChild::Node(n)=>{
-//                 return VNodeChild::Node(n);
-//             }
-//             VNodeChild::NodeList(r) => {
-//                 return VNodeChild::NodeList(r);
-//             },
-//             VNodeChild::Component(n)=>{
-//                 return VNodeChild::Component(n.clone());
-//             }
-//         }
-//     }
-// }
 
 pub trait Component: Sized + 'static {
     type Props;
@@ -132,11 +114,7 @@ tov!((f32));
 tov!((f64));
 tov!((String));
 tov!((bool));
-// impl ToVNodeChild for i32 {}
-// impl ToVNodeChild for i64 {}
-// impl ToVNodeChild for f32 {}
-// impl ToVNodeChild for f64 {}
-// impl ToVNodeChild for String {}
+
 impl ToVNodeChild for &str {
     fn to(self) -> VNodeChild {
         VNodeChild::Text(format!("{}", self))
