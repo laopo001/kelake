@@ -8,6 +8,8 @@ use js_sys::Function;
 use std::io::Write;
 use wasm_bindgen::prelude::*;
 use web_sys::{console, Document, Element, Node, Text, Window};
+use std::cell::RefCell;
+use std::rc::Rc;
 #[derive(Debug, Copy, Clone)]
 struct Select {
     s: i32,
@@ -77,7 +79,7 @@ pub fn start1() -> Result<(), JsValue> {
     let document: web_sys::Document = window.document().expect("should have a document on window");
     let body = document.body().expect("document should have a body");
 
-    let a = react!(<Select age={9999}></Select>);
+    let a = react!(<Select age={777}></Select>);
     render(
         react!(
             <div>

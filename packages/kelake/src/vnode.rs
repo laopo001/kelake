@@ -1,9 +1,9 @@
-use std::any::Any;
+use std::{any::Any, cell::RefCell};
 use std::collections::HashMap;
 use std::convert::From;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
-pub type Task = Box<(String,Box<dyn ComponentUpdate>)>;
+pub type Task = Rc<RefCell<(String,Box<dyn ComponentUpdate>)>>;
 // pub type Task = Rc<dyn FnMut()>;
 
 #[derive()]

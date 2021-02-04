@@ -7,11 +7,14 @@ use kelake::vnode::{
     format, Component, ComponentUpdate, PropsValue, Task, ToVNodeChild, VNode, VNodeChild,
 };
 use rand::Rng;
-use std::sync::{Arc, Mutex};
-use std::{collections::HashMap, ops::DerefMut};
+use std::collections::HashMap;
+use std::{cell::RefCell, rc::Rc};
+use std::{
+    sync::{Arc, Mutex},
+    vec,
+};
 use wasm_bindgen::prelude::*;
 use web_sys::{console, Document, Element, Node, Text, Window};
-
 struct App;
 
 unsafe impl Sync for App {}
@@ -20,45 +23,43 @@ lazy_static! {
     // static ref ARRAY: Mutex<Vec<HashMap<String, Task>>> = Mutex::new(vec![]);
 
 }
-static mut ARRAY: Vec<HashMap<String, *mut Task>> = vec![];
-
+static mut ARRAY: Vec<HashMap<String, Task>> = vec![];
+static mut VNODE: VNodeChild = VNodeChild::NodeList(vec![]);
 #[wasm_bindgen]
 pub fn call_task(task_id: usize, string: &str) {
     unsafe {
         // console::log_1(&JsValue::from_f64(task_id as f64));
-        console::log_1(&JsValue::from_str(string));
-
-        if let Some(x) = ARRAY.get_mut(task_id).expect("error").get_mut(string) {
-            console::log_1(&JsValue::from_f64(task_id as f64));
-            let (string, this) = (*(*x)).as_mut();
-            // let string = (**x).0;
-            // let this = &(*(*x)).1;
-            // (*(*x)).1.update((*(*x)).0.to_string());
-            // let (string, this) = **x;
-            // this.deref_mut().update(string.to_string());
-            (this).update(string.to_string());
-        }
+        // console::log_1(&JsValue::from_str(string));
+        let map = ARRAY.get_mut(task_id).expect("msg");
+        let task = map.get_mut(string).expect("msg");
+        // console::log_1(&JsValue::from_str(&format!("{:?}",task.borrow_mut().1)));
+        let s = task.borrow_mut().0.to_string();
+        task.borrow_mut().1.update(s);
     }
 }
 
 pub fn render(mut vnode: VNodeChild, element: Element) -> Result<(), JsValue> {
-    let window = web_sys::window().expect("no global `window` exists");
-    let document: Document = window.document().expect("should have a document on window");
+    unsafe {
+        let window = web_sys::window().expect("no global `window` exists");
+        let document: Document = window.document().expect("should have a document on window");
 
-    let child = render_vnode(&mut vnode).expect("error");
+        // VNODE = vnode;
 
-    element.append_child(&child).unwrap();
-    document.add_event_listener_with_callback(
+        let child = render_vnode(&mut vnode).expect("error");
+
+        element.append_child(&child).unwrap();
+        document.add_event_listener_with_callback(
         "click",
         &Function::new_with_args("e", " try{ 
             if(e.target.attributes[ 'on' + e.type ]){
                 call_task(e.target.attributes[ 'on' + e.type ].nodeValue, 'on' + e.type.slice(0,1).toUpperCase() + e.type.slice(1,e.type.length)); 
             }
-        } catch (e){
-            console.error(e);
-        }"),
-    );
-    Ok(())
+            } catch (e){
+                console.error(e);
+            }"),
+        );
+        Ok(())
+    }
 }
 
 fn render_vnode(vnode: &mut VNodeChild) -> Option<Node> {
@@ -82,8 +83,8 @@ fn render_vnode(vnode: &mut VNodeChild) -> Option<Node> {
                         // let mut rng = rand::thread_rng();
                         // console::log_1(&JsValue::from_str(&format!("i32: {}, u32: {}", rng.gen::<i32>(), rng.gen::<u32>())));
                         // let mut mut_arr = ARRAY.lock().expect("error");
-                        let mut map: HashMap<String, *mut Task> = HashMap::new();
-                        map.insert(key.to_string(), x);
+                        let mut map: HashMap<String, Task> = HashMap::new();
+                        map.insert(key.to_string(), x.clone());
                         ARRAY.push(map);
                         element.set_attribute(&key, &(ARRAY.len() - 1).to_string());
                     }
