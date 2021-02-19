@@ -20,7 +20,7 @@ lazy_static! {
     // static ref ARRAY: Mutex<Vec<HashMap<String, Task>>> = Mutex::new(vec![]);
 
 }
-static mut ARRAY: Vec<HashMap<String, Box<Task>>> = vec![];
+static mut ARRAY: Vec<HashMap<String, Task>> = vec![];
 
 #[wasm_bindgen]
 pub fn call_task(task_id: usize, string: &str) {
@@ -66,10 +66,12 @@ fn render_vnode(vnode: &mut VNodeChild) -> Option<Node> {
                     PropsValue::Task(x) => {
                         // let mut rng = rand::thread_rng();
                         // console::log_1(&JsValue::from_str(&format!("i32: {}, u32: {}", rng.gen::<i32>(), rng.gen::<u32>())));
-                        let mut map: HashMap<String, Box<Task>> = HashMap::new();
+                        let mut map: HashMap<String, Task> = HashMap::new();
+                   
+                        let x = unsafe { std::ptr::read(x) };
                         map.insert(
                             key.to_string(),
-                            Box::from_raw(x as *mut (String, Box<dyn ComponentUpdate>)),
+                            x,
                         );
                         ARRAY.push(map);
                         element.set_attribute(&key, &(ARRAY.len() - 1).to_string());

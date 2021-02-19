@@ -5,7 +5,7 @@ use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 use web_sys::Node;
 
-pub type Task = (String, Box<dyn ComponentUpdate>);
+pub type Task = Box<(String, Box<dyn ComponentUpdate>)>;
 // pub type Task = Rc<dyn FnMut()>;
 
 #[derive()]
