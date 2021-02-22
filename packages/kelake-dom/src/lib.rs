@@ -6,6 +6,7 @@ use js_sys::Function;
 use kelake::vnode::{
     format, Component, ComponentUpdate, PropsValue, Task, ToVNodeChild, VNode, VNodeChild,
 };
+
 use rand::Rng;
 use std::collections::HashMap;
 use std::{cell::RefCell, rc::Rc};
@@ -34,7 +35,7 @@ pub fn call_task(task_id: usize, string: &str) {
         let task = map.get_mut(string).expect("msg");
         // console::log_1(&JsValue::from_str(&format!("{:?}",task.borrow_mut().1)));
         let s = task.borrow_mut().0.to_string();
-        task.borrow_mut().1.update(s);
+        task.borrow_mut().1.expect("msg").as_mut().update(s);
     }
 }
 

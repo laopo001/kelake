@@ -280,7 +280,7 @@ impl Parse for ElementProps {
                 block.to_tokens(&mut t);
                 t = block.get_real_tokens();
                 if key.starts_with("on") {
-                    let q = quote!(( #key.to_string(), PropsValue::Task( Rc::new( RefCell::new((#t .to_string(), Box::from_raw(unsafe {
+                    let q = quote!(( #key.to_string(), PropsValue::Task( Rc::new( RefCell::new((#t .to_string(), std::ptr::NonNull::new(unsafe {
                         let x = std::mem::transmute::<&Self, *mut Self>(self);
                         x
                     }))) )  ) ));
