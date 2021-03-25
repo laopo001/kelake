@@ -26,7 +26,7 @@ enum SelectEvent {
 
 impl Component for Select {
     type Props = SelectProps;
-    fn create(props: SelectProps, c: Vec<VNodeChild>) -> Self {
+    fn create(props: SelectProps, children: Vec<VNodeChild>) -> Self {
         return Self { s: 1, props };
     }
 }
