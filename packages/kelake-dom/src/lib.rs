@@ -16,7 +16,7 @@ use std::{
 };
 use wasm_bindgen::prelude::*;
 use web_sys::{console, Document, Element, Node, Text, Window};
-
+// use web_sys::features::gen_Node;
 struct App;
 
 unsafe impl Sync for App {}
@@ -164,7 +164,7 @@ fn diff(vnode: &mut VNodeChild, pre_vnode: &VNodeChild, mut html_node: Element) 
                                 _ => {}
                             }
                             let y = node.children.get_mut(i);
-                            let z = (&html_node).child_nodes[i];
+                            let z = (html_node).child_nodes[i];
                             if y.is_none() {
                                 z.remove();
                                 return;
